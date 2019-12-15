@@ -21,10 +21,10 @@ Features of PadTool:
 - Possible generation of ATC slide (Artist, Title & Cover)
 - Colors and themes fully personnalisable via CSS and HTML templates
 
-Output example slides :
+Output example slides :  
 
-![Screenshot of a logo slide(https://raw.githubusercontent.com/fabcd14/PadTool/master/img/example_logo.jpg)   
-![Screenshot of a ATC slide(https://raw.githubusercontent.com/fabcd14/PadTool/master/img/example_music.jpg)   
+![Screenshot of a logo slide](https://raw.githubusercontent.com/fabcd14/PadTool/master/img/example_logo.jpg)   
+![Screenshot of a ATC slide](https://raw.githubusercontent.com/fabcd14/PadTool/master/img/example_music.jpg)   
 
 Install
 =======
@@ -45,14 +45,14 @@ Contributions and Contact
 =========================
 
 Contributions to this tool are welcome, you can contact me at any time via my e-mail
-address below.
-
+address below.   
+   
 There is a bunch of ideas and thoughts about new possible features and improvements
-in the `TODO` file.
-
-Developed by:
-Fabien Cuny *fabien.cuny7 [at] orange [dot] fr*
-aka fabcd14, admin of the `DAB Radio Normandie` Facebook Page
+in the `TODO` file.   
+   
+Developed by:   
+Fabien Cuny *fabien.cuny7 [at] orange [dot] fr*   
+aka fabcd14, admin of the `DAB Radio Normandie` Facebook Page   
 
 If you like my work, and want to support it, grab me a coffee or a beer here : https://www.buymeacoffee.com/fabcd14
 Thanks by advance :-)
