@@ -1,5 +1,5 @@
-Overview
-========
+PadTool
+=======
 
 PadTool is a MOT SLS and DLS generator for PAD encoders such as ODR-PadEnc.
 
@@ -23,8 +23,8 @@ Features of PadTool:
 
 Output example slides :
 
-![Screenshot of a logo slide(https://github.com/fabcd14/PadTool/example_logo.jpg)
-![Screenshot of a ATC slide(https://github.com/fabcd14/PadTool/example_music.jpg)
+![Screenshot of a logo slide(https://raw.githubusercontent.com/fabcd14/PadTool/master/img/example_logo.jpg)   
+![Screenshot of a ATC slide(https://raw.githubusercontent.com/fabcd14/PadTool/master/img/example_music.jpg)   
 
 Install
 =======
