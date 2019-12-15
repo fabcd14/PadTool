@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>SuperSLS</title>
+        <style>
+            body {
+                font-family: 'Arial';  
+                width:320px; 
+                height:240px;
+				margin:0px;
+                background-color:$color1;
+            }
+
+            /*body::after {
+                content: "";
+                background-image: url(http://ds1.static.rtbf.be/cover/4/9/1/150x150_73087B1D-7918-435E-9660-3BEE32DEB066.JPG);
+                background-position:center;
+                background-size:cover;
+				filter: blur(8px);
+				-webkit-filter: blur(8px);
+                opacity: 0.6;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                right: 0;
+                position: absolute;
+                z-index: -1;
+				width:320px; 
+                height:240px;
+            }*/
+
+            #logo
+            {
+                margin-left:auto;
+                margin-right:auto;
+				margin-bottom:7px;
+                height:53px;
+                width:320px;
+                height:175px;
+                background-repeat:no-repeat;
+                background-size:cover;
+                background-color:$colorl;
+                background-position:center;
+                background-image:url('$logo');
+            }
+
+            #cover 
+            {
+				margin-left: 5px;
+                margin-right: auto;
+                background-size: 50px 50px;
+                background-image:url('$cover');
+                width:50px;
+                height:50px;
+            }
+            
+            #title 
+            {   
+                margin-left:60px;
+				margin-top:-50px;
+				text-align:left;
+                font-size:14px;
+                width:320px;
+                height:165px;
+                color:$color2;
+                background-color:$color1;
+            }
+
+            i
+            {
+                font-size:12px;
+            }
+        </style>
+    </head>
+    <body>
+		<div id="logo"></div>    
+        <div id="cover"></div>  
+        <div id="title">
+            <i>On Air</i><br>
+			<b>$artist</b><br>$title
+        </div>
+    </body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>SuperSLS</title>
+        <style>
+            body {
+                background-color:black;
+                font-family: 'Arial', 'Liberation Sans';  
+                width:320px; 
+                height:240px;
+				margin:0px;
+            }
+
+            body::after {
+                content: "";
+                background-image: url($cover);
+                background-position:center;
+                background-size:cover;
+				filter: blur(8px);
+				-webkit-filter: blur(8px);
+                opacity: 0.6;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                right: 0;
+                position: absolute;
+				margin-left:-10px;
+				margin-top: -10px;
+                z-index: -1;
+				width:340px; 
+                height:260px;
+            }
+
+            #logo
+            {
+                margin-left:auto;
+                margin-right:auto;
+                margin-top:5px;
+				margin-bottom:5px;
+                height:53px;
+                background-repeat:no-repeat;
+                background-size:contain;
+                
+                background-position:center;
+                background-image:url('$logo');
+            }
+
+            #cover 
+            {
+				margin-left: auto;
+                margin-right: auto;
+                background-size: 130px 130px;
+                background-image:url('$cover');
+                width:130px;
+                height:130px;
+				box-shadow:1px 1px 15px #555;
+				margin-bottom:15px;
+            }
+            
+            #title 
+            {   
+                margin-left:auto;
+				margin-right:auto;
+				text-align:center;
+                font-size:14px;
+                color:black;
+            }
+
+            p
+            {
+                background-color: rgba(255,255,255,.50);
+            }
+        </style>
+    </head>
+    <body>
+		<div id="logo"></div>
+        <div id="cover"></div>      
+        <div id="title">
+			<p><b>$artist</b><br>$title</p>
+        </div>
+    </body>
+</html>

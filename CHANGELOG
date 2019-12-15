@@ -1,0 +1,7 @@
+This file contains information about the changes done to
+PadTool in this repository
+
+2019-12-15: Fabien Cuny
+	(v0.7.0):
+		First pre-release, fixed bugs with generation of black slides
+		Known-bug : problem with accents in the DLS crashes the program
