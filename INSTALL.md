@@ -45,6 +45,7 @@ To get the lastest version of PadTool, and execute it :
 
 PadTool will run with the `config.ini` file by default.   
 In order to use a different configuration file, type :
+
     $ ./padtool.py -c <your_configuration_file.py>
 
 For PadTool usage, see `USAGE`
