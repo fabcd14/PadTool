@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-version = "v0.7"
+version = "v0.7.1"
 
 #Import system libraries
 import configparser
@@ -14,7 +14,6 @@ import sys
 import getopt
 import os
 import threading
-
 
 from urllib.request import *
 
@@ -65,7 +64,7 @@ def main(argv):
 
     # Config file parsing
     cfg = configparser.ConfigParser()
-    cfg.read(inputFile)
+    cfg.read(inputFile, encoding='utf-8')
     try:
         mode = cfg.get('general', 'mode')
         outFolder = cfg.get('general', 'outFolder')
@@ -132,9 +131,9 @@ if __name__ == "__main__":
         except SystemExit:
             os._exit(0)
             driver = None
-    except Exception as ex:
-        try:
-            print ("Error : " + str(ex))
-            sys.exit(0)
-        except SystemExit:
-            os._exit(0)
+    # except Exception as ex:
+    #     try:
+    #         print ("Error : " + str(ex))
+    #         sys.exit(0)
+    #     except SystemExit:
+    #         os._exit(0)

@@ -7,9 +7,14 @@ def parseTxt(file, tmpl):
     title = ""
     cover = ""
 
-    file = file.decode("utf-8")
-    file = file.split('\n')
-    tmpl = tmpl.split('\n')
+    try:
+        file = file.decode("utf-8")
+        file = file.split('\n')
+        tmpl = tmpl.split('\n')
+    except:
+        file = str(file.decode("latin1"))
+        file = file.split('\n')
+        tmpl = tmpl.split('\n')
 
     idxArtistLine = -1
     idxArtistIdx  = -1

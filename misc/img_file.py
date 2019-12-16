@@ -10,14 +10,6 @@ from misc import strTools
 def generateImg(content, filename, driver):
     content = strTools.parseCharsForImg(content)
 
-    # If path given is relative, we append the current folder
-    # if (os.path.isabs(filename) == False):
-    #     filename = os.getcwd() + filename
-
-    #f = open( filename + ".htm", 'w' )
-    #f.write( content )
-    #f.close()
-
     with open(filename + ".htm",'wt') as f:
         f.write(content)
     if('Windows' in platform.system()):
@@ -45,8 +37,3 @@ def generateImg(content, filename, driver):
         os.remove(filename + ".png")
     if(os.path.isfile(filename + ".htm")):
         os.remove(filename + ".htm")
-
-    # if("logo" in filename):
-    #     region.save("img//logo.jpg", 'JPEG', optimize=True, quality=55)
-    # if("music" in filename):
-    #     region.save("img//music.jpg", 'JPEG', optimize=True, quality=55)

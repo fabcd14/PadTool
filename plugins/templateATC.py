@@ -24,7 +24,7 @@ def generate(cfg, driver, lastArtist, lastTitle):
     ssl._create_default_https_context = ssl._create_unverified_context
 
     # Parameters to generate SLS from the config file
-    try:
+    try: 
         logo = cfg.get('general', 'logoUrl')
         color1 = cfg.get('general', 'color1')
         color2 = cfg.get('general', 'color2')
@@ -41,7 +41,7 @@ def generate(cfg, driver, lastArtist, lastTitle):
     file = urlopen(cfg.get('source', 'url')).read()
     tmpl = ""
 
-    with open (cfg.get('source', 'template'), "r") as template:
+    with open(cfg.get('source', 'template'), "r") as template:
         for line in template:
             tmpl = tmpl + line
 
