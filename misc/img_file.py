@@ -10,14 +10,8 @@ from misc import strTools
 def generateImg(content, filename, driver):
     content = strTools.parseCharsForImg(content)
 
-    with open(filename + ".htm",'wt') as f:
-        f.write(content)
-    if('Windows' in platform.system()):
-        cwd = "file:///" + os.getcwd().replace("\\", "/") + "/" + filename + ".htm"
-    else:
-        cwd = "file://" + os.getcwd() + "/" + filename + ".htm"
-
-    driver.get(cwd)
+    driver.get("data:text/html;charset=utf-8," + content)
+    
     driver.save_screenshot(filename + ".png")
     screen = driver.get_screenshot_as_png()
 

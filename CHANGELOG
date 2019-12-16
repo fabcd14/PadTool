@@ -2,6 +2,11 @@ This file contains information about the changes done to
 PadTool in this repository
 
 2019-12-16: Fabien Cuny
+	(v0.7.2):
+		Regression Fixed : image generation caused sometimes black images. Now solved.
+		Fixed : Covers and background hosted on HTTPS servers now fully appear 
+
+2019-12-16: Fabien Cuny
 	(v0.7.1):
 		Bugfix concerning text files containing accents
 		DLS+ text encoding fixed

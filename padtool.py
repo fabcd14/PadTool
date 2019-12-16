@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-version = "v0.7.1"
+version = "v0.7.2"
 
 #Import system libraries
 import configparser
@@ -96,7 +96,7 @@ def main(argv):
     # Webdriver Init
     print ("[Wdv ] Initializing WebDriver...")
     try:
-        driver = webdriver.PhantomJS(service_args=["--disk-cache=false"])
+        driver = webdriver.PhantomJS(service_args=["--disk-cache=false", "--ignore-ssl-errors=true", "--ssl-protocol=any"])
         driver.set_window_size(320, 240)
         print ("[Wdv ] WebDriver Initialized")
     except Exception as error:
