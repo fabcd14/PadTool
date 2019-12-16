@@ -10,6 +10,8 @@ from misc import strTools
 def generateImg(content, filename, driver):
     content = strTools.parseCharsForImg(content)
 
+    driver.get("about:blank")
+    driver.delete_all_cookies()
     driver.get("data:text/html;charset=utf-8," + content)
     
     driver.save_screenshot(filename + ".png")
