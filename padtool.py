@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-version = "v0.7.2"
+version = "v0.7.3"
 
 #Import system libraries
 import configparser

@@ -180,13 +180,14 @@ def generate(cfg, driver, lastArtist, lastTitle):
     if(artist == "" or title == ""):
         return artist, title
 
+    # If title and/or artist are too long to be displayed on a slide, we reduce them
     if(len(str(artist)) > 35):
         artist = str(artist)[0:35] + "..."
     if(len(str(title)) > 35):
         title = str(title)[0:35] + "..."
 
-    content = content.replace("$artist", str(artist))
-    content = content.replace("$title", str(title))
+    content = content.replace("$artist", str(artist.encode("utf-8").decode('unicode_escape')))
+    content = content.replace("$title", str(title.encode("utf-8").decode('unicode_escape')))
     content = content.replace("$color1", color1)
     content = content.replace("$color2", color2)
 
@@ -211,7 +212,11 @@ def generate(cfg, driver, lastArtist, lastTitle):
 
         urlretrieve(logo, tempPathLogo)
         try:
-            urlretrieve(cover, tempPathCover)
+            respCover = urlopen(cover).getcode()
+            if (respCover == 200):
+                respCover = urlretrieve(cover, tempPathCover)
+            else:
+                raise
         except:
             print("[ATC ] HTTP Error, putting default cover...")
             cover = cfg.get('source','defaultCover')

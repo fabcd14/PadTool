@@ -5,14 +5,17 @@ from PIL import Image
 import platform
 import os
 
-from misc import strTools
-
 def generateImg(content, filename, driver):
-    content = strTools.parseCharsForImg(content)
+    if('Windows' in platform.system()):
+        f = open( filename + ".htm", 'w' )
+        f.write( content )
+        f.close()
 
-    driver.get("about:blank")
-    driver.delete_all_cookies()
-    driver.get("data:text/html;charset=utf-8," + content)
+        driver.get(filename + ".htm")
+    else:
+        driver.get("about:blank")
+        driver.delete_all_cookies()
+        driver.get("data:text/html;charset=utf-8," + content)
     
     driver.save_screenshot(filename + ".png")
     screen = driver.get_screenshot_as_png()
