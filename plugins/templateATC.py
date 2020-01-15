@@ -19,7 +19,7 @@ from misc import img_file
 from selenium import webdriver
 from PIL import Image
 
-def generate(cfg, driver, lastArtist, lastTitle):
+def generate(cfg, driver, lastArtist, lastTitle, mode):
     # Avoid SSL errors
     ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -106,9 +106,10 @@ def generate(cfg, driver, lastArtist, lastTitle):
     except json.decoder.JSONDecodeError as ex:
         print("[ATC ] No filters defined for title tag (bad format or empty), ignoring...")
 
-    if(artist == lastArtist and title == lastTitle):
-        print("[ATC ] SLS/DLS already generated, passing...")
-        return artist, title
+    if(mode != "dabctl"):
+        if(artist == lastArtist and title == lastTitle):
+            print("[ATC ] SLS/DLS already generated, passing...")
+            return artist, title
 
     # Put default cover when no cover image provided (eg. logo of the radio station)
     if not cover or filterFound == True:
@@ -157,20 +158,49 @@ def generate(cfg, driver, lastArtist, lastTitle):
         if (radioName in contentDls and radioName != ""):
             idxRadioName = contentDls.index(radioName)
 
-        dlPlus = "##### parameters { #####\nDL_PLUS=1\nDL_PLUS_ITEM_TOGGLE=0\nDL_PLUS_ITEM_RUNNING=1\n"
-        
-        if (idxRadioName != -1):
-            dlPlus = dlPlus + "DL_PLUS_TAG=32 " + str(idxRadioName) + " " + str(lenRadioName -1) + "\n"
-        if (idxTitle != -1):
-            dlPlus = dlPlus + "DL_PLUS_TAG=1 " + str(idxTitle) + " " + str(lenTitle - 1) + "\n"
-        if (idxArtist != -1):
-            dlPlus = dlPlus + "DL_PLUS_TAG=4 " + str(idxArtist) + " " + str(lenArtist - 1) + "\n"
-        dlPlus = dlPlus + "##### parameters } #####"
-        f = open( outFolder + '/dls.txt', 'w' )
-        f.write( dlPlus + "\n" + contentDls )
+        dlsPlusEnabled = "0"
+        try:
+            # Parsing option in the config file if the DLS+ is enabled or not.
+            if(cfg.get('dls', 'dlsPlus') != ""):
+                dlsPlusEnabled = cfg.get('dls', 'dlsPlus')
+        except:
+            dlsPlusEnabled = "0"
+
+        if(dlsPlusEnabled == "1"):    
+            dlPlus = "##### parameters { #####\nDL_PLUS=1\nDL_PLUS_ITEM_TOGGLE=0\nDL_PLUS_ITEM_RUNNING=1\n"
+            
+            if (idxRadioName != -1):
+                dlPlus = dlPlus + "DL_PLUS_TAG=32 " + str(idxRadioName) + " " + str(lenRadioName -1) + "\n"
+            if (idxTitle != -1):
+                dlPlus = dlPlus + "DL_PLUS_TAG=1 " + str(idxTitle) + " " + str(lenTitle - 1) + "\n"
+            if (idxArtist != -1):
+                dlPlus = dlPlus + "DL_PLUS_TAG=4 " + str(idxArtist) + " " + str(lenArtist - 1) + "\n"
+            dlPlus = dlPlus + "##### parameters } #####"
+        outDls = outFolder + '/dls.txt'
+        try:
+            # Parsing option in the config file if the DLS file should be generated in an other path.
+            if(cfg.get('dls', 'outFile') != ""):
+                outDls = cfg.get('dls', 'outFile') 
+        except:
+            pass
+        f = open(outDls, 'w')
+        if(dlsPlusEnabled == "1"):   
+            f.write(dlPlus + "\n" + contentDls)
+        else:
+            f.write(contentDls)
         f.close()
 
-        print ("[ATC ] DLS exported with DLS+ : '" + contentDls + "' at '" + outFolder + "/dls.txt'")
+        try:
+            if(cfg.get('dls', 'outFile') != ""):
+                if(dlsPlusEnabled == "1"):   
+                    print ("[ATC ] DLS exported with DLS+ : '" + contentDls + "' at '" + outDls + "'")
+                else:
+                    print ("[ATC ] DLS exported : '" + contentDls + "' at '" + outDls + "'")
+        except:
+            if(dlsPlusEnabled == "1"):   
+                print ("[ATC ] DLS exported with DLS+ : '" + contentDls + "' at '" + outFolder + "/dls.txt'")
+            else:
+                print ("[ATC ] DLS exported : '" + contentDls + "' at '" + outDls + "'")
 
     # If a filter has been found, we don't generate any artist, title slide
     if(filterFound == True):
@@ -186,51 +216,19 @@ def generate(cfg, driver, lastArtist, lastTitle):
     if(len(str(title)) > 35):
         title = str(title)[0:35] + "..."
 
+    print ("[ATC ] Generating Slide...")
+
     content = content.replace("$artist", str(artist.encode("utf-8").decode('unicode_escape')))
     content = content.replace("$title", str(title.encode("utf-8").decode('unicode_escape')))
     content = content.replace("$color1", color1)
     content = content.replace("$color2", color2)
-
-    print ("[ATC ] Generating Slide...")
-
-    if(int(cfg.get('proxy', 'enabled')) == 1):
-        if('Windows' in platform.system()):
-            tempPathLogo  = "C://Temp//logo.jpg"
-            tempPathCover = "C://Temp//cover.jpg"
-            tempPathBack  = "C://Temp//backurl.jpg"
-            tempUrlLogo   = "file:///C:/Temp/logo.jpg"
-            tempUrlCover  = "file:///C:/Temp/cover.jpg?t=" + str(datetime.timestamp(datetime.now()))
-            tempUrlBack   = "file:///C:/Temp/backurl.jpg"
-        else:
-            tempPathLogo  = "/tmp/logo.jpg"
-            tempPathCover = "/tmp/cover.jpg"
-            tempPathBack  = "/tmp/backurl.jpg"
-            tempUrlLogo   = "file:///tmp/logo.jpg"
-            tempUrlCover  = "file:///tmp/cover.jpg?t=" + str(datetime.timestamp(datetime.now()))
-            if (backUrl != ""):
-                tempUrlBack   = "file:///tmp/backurl.jpg"
-
-        urlretrieve(logo, tempPathLogo)
-        try:
-            respCover = urlopen(cover).getcode()
-            if (respCover == 200):
-                respCover = urlretrieve(cover, tempPathCover)
-            else:
-                raise
-        except:
-            print("[ATC ] HTTP Error, putting default cover...")
-            cover = cfg.get('source','defaultCover')
-            urlretrieve(cover, tempPathCover)
-        if (backUrl != ""):
-            urlretrieve(backUrl, tempPathBack)
-        content = content.replace("$logo", tempUrlLogo)
-        content = content.replace("$cover", tempUrlCover)
-        if (backUrl != ""):
-            content = content.replace("$backurl", tempUrlBack)
-    else:
-        content = content.replace("$backurl", backUrl)
-        content = content.replace("$logo", logo)
-        content = content.replace("$cover", cover)
+    content = content.replace("$backurl", backUrl)
+    content = content.replace("$logo", logo)
+    try:
+        respCover = urlopen(cover).getcode()
+    except:
+        cover = cfg.get('source','defaultCover')
+    content = content.replace("$cover", cover)
 
     try:     
         img_file.generateImg(content, outFolder + "/music", driver)
@@ -239,8 +237,8 @@ def generate(cfg, driver, lastArtist, lastTitle):
         print ("[ATC ] Slide generation error : " + str(ex))
     
     # Create file REQUEST_SLIDES_DIR_REREAD
-    f = open( outFolder + '/REQUEST_SLIDES_DIR_REREAD', 'w' )
-    f.write( "" )
+    f = open(outFolder + '/REQUEST_SLIDES_DIR_REREAD', 'w' )
+    f.write("")
     f.close()  
 
     return artist, title

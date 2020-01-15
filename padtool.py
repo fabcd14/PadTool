@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-version = "v0.7.3"
+version = "v0.8.0"
 
 #Import system libraries
 import configparser
@@ -83,8 +83,11 @@ def main(argv):
             sys.exit(2)
     elif (mode == 'server'):
         print ("Server mode")
+    elif (mode == 'dabctl'):
+        print ("DAB-CTL mode, timer period overriden to: 15s")
+        timer = 15
     else:
-        print("Parameter 'mode' not recognized. Only the options 'standalone' or 'server' are supported")
+        print("Parameter 'mode' not recognized. Only the options 'standalone', 'server' or 'dabctl' are supported")
         sys.exit(2)
 
     # For Proxy
@@ -104,17 +107,21 @@ def main(argv):
 
     # Generate slides with logo first if enabled
     try:
-        if(cfg.get('slides', 'logo') == "1"):
-            templateLogo.generate(cfg, driver)
-
         title = None
         artist = None
 
-        showName = None
+        if(mode == "standalone"):
+            if(cfg.get('slides', 'logo') == "1"):
+                templateLogo.generate(cfg, driver)
+
         while True:
+            if(mode == "dabctl"):
+                if(cfg.get('slides', 'logo') == "1"):
+                    templateLogo.generate(cfg, driver)
+
             #Generating artist/title/cover slide (with DLS+ if selected)
             if(cfg.get('slides', 'music') == "1"):
-                artist, title = templateATC.generate(cfg, driver, artist, title)
+                artist, title = templateATC.generate(cfg, driver, artist, title, mode)
             time.sleep(int(timer))
     except configparser.NoOptionError as error:
         print("Mandatory parameter is missing : " + str(error))

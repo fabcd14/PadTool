@@ -1,7 +1,21 @@
-This file contains information about the changes done to
-PadTool in this repository
+This file contains information about the changes done to PadTool in this repository
 
-2019-12-16: Fabien Cuny
+2020-01-15: Fabien Cuny
+	(v0.8.0):
+		- Happy new year 2020, full of digital radio ! :-)
+		- Added DAB-CTL mode in order to be fully compatible with the "DAB Control Interface" 
+		software from V. Demarque (BCE)
+		- DLS car now be generated outside the SLS directory if specified
+		- DLS can be generated with or without DLS+ (DLS by default)
+		Bugfixes :
+			- Music (or ATC) slide generation crashed randomly. Wait time added in order 
+			to complete the generation process.
+			- Code optimization regarding proxy support and slide generation (no more temporary 
+			files used anymore)
+			- Under Linux distributions, the default cover did not appear when a cover URL 
+			is pointing to an unexisting path.
+
+2019-12-17: Fabien Cuny
 	(v0.7.3):
 		Accentuated characters are now supported in the slideshows
 		Fixed : Default cover is now shown when an URL of a cover is dead or incorrect

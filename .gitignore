@@ -134,3 +134,6 @@ _file.txt
 _template.txt
 out/
 ghostdriver.log
+config-grrif.ini
+config.ini
+examples-template/template-fabrik.json
