@@ -42,7 +42,7 @@ PadTool has two modes :
             enabled = 1
             dlsPlus = 1
             text = $artist - $title
-            outFile = /home/<your-user-name>/dab-ctl/conf/FFB7.dls
+            outFile = /home/<your-user-name>/dab-ctl/conf/FFBA.dls
             ...
             
 * `server` (not implemented yet)  
