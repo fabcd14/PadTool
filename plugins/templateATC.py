@@ -103,7 +103,7 @@ def generate(cfg, driver, lastArtist, lastTitle, mode):
     except configparser.NoOptionError as error:
         str_tools.printMsg("ATC ", "No filters defined for title tag, ignoring...")
     except configparser.NoSectionError as error:
-        str_tools.printMsg("ATC ," "No filters defined for title tag, ignoring...")
+        str_tools.printMsg("ATC ", "No filters defined for title tag, ignoring...")
     except json.decoder.JSONDecodeError as ex:
         str_tools.printMsg("ATC ", "No filters defined for title tag (bad format or empty), ignoring...")
 
