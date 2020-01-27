@@ -221,8 +221,10 @@ def generate(cfg, driver, lastArtist, lastTitle, mode):
 
     str_tools.printMsg ("ATC ", "Generating Slide...")
 
-    content = content.replace("$artist", str(artist.encode("utf-8").decode('unicode_escape')))
-    content = content.replace("$title", str(title.encode("utf-8").decode('unicode_escape')))
+    # content = content.replace("$artist", str(artist.encode("utf-8").decode('unicode_escape')))
+    # content = content.replace("$title", str(title.encode("utf-8").decode('unicode_escape')))
+    content = content.replace("$artist", str(artist))
+    content = content.replace("$title", str(title))
     content = content.replace("$color1", color1)
     content = content.replace("$color2", color2)
     content = content.replace("$backurl", backUrl)
