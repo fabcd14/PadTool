@@ -1,8 +1,15 @@
-Software
+PadTool ToDo List
+=================
 
-- Problems with accentuated characters in DLS that causes crashes
+Must-have
+---------
+
+- Solid trials of Json parsing
 - Implement server mode
-- Trials to do without PhantomJS lib because it's deprecated
-- Implement better Json parser because some troubles exists with different sized json files.
-- Webserver to monitor slides
 - Implement more tags
+
+Nice to have
+------------
+
+- Cover issued from music APIs where not available in the tags
+- Webserver to monitor slides

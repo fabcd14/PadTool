@@ -7,6 +7,7 @@ import imgkit
 import platform
 
 from misc import img_file
+from misc import str_tools
 
 def generate(cfg, driver):
     # Parameters to generate SLS from the config file
@@ -15,10 +16,10 @@ def generate(cfg, driver):
         colorl = cfg.get('general', 'colorl')
         outFolder = cfg.get('general', 'outFolder')
     except configparser.NoOptionError as error:
-        print("[Logo] Mandatory parameter is missing : " + str(error))
+        str_tools.printMsg("Logo", "Mandatory parameter is missing : " + str(error))
         sys.exit(2)
 
-    print ("[Logo] Generating Slide...")
+    str_tools.printMsg ("Logo", "Generating Slide...")
 
     # Data masking replacement with correct values
     content = ""
@@ -30,6 +31,6 @@ def generate(cfg, driver):
 
     try: 
         img_file.generateImg(content, outFolder + "/logo", driver)
-        print ("[Logo] Slide generated at : '" + outFolder + "/logo.jpg'")
+        str_tools.printMsg ("Logo", "Slide generated at : '" + outFolder + "/logo.jpg'")
     except Exception as ex:
-        print ("[Logo] Slide generation error : " + str(ex))
+        str_tools.printMsg ("Logo", "Slide generation error : " + str(ex))

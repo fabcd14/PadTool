@@ -1,11 +1,12 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-version = "v0.8.0"
+version = "v0.9.0"
 
 #Import system libraries
 import configparser
 from selenium import webdriver
+import selenium
 import re
 import subprocess
 import platform
@@ -16,6 +17,8 @@ import os
 import threading
 
 from urllib.request import *
+
+from misc import str_tools
 
 driver = None
 
@@ -97,13 +100,22 @@ def main(argv):
         install_opener(opener)
 
     # Webdriver Init
-    print ("[Wdv ] Initializing WebDriver...")
+    str_tools.printMsg ("Wdv ", "Initializing WebDriver...")
     try:
-        driver = webdriver.PhantomJS(service_args=["--disk-cache=false", "--ignore-ssl-errors=true", "--ssl-protocol=any"])
+        #Formerly with PhantomJS until v0.8.0
+        #driver = webdriver.PhantomJS(service_args=["--disk-cache=false", "--ignore-ssl-errors=true", "--ssl-protocol=any"])
+        
+        #Now with ChromeDriver since v0.9.0
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+        options.add_argument('hide-scrollbars')
+        options.add_argument('log-level=2')
+
+        driver = webdriver.Chrome(options=options)
         driver.set_window_size(320, 240)
-        print ("[Wdv ] WebDriver Initialized")
+        str_tools.printMsg ("Wdv ", "WebDriver Initialized")
     except Exception as error:
-        print ("[Wdv ] WebDriver initialization error : " + str(error))
+        str_tools.printMsg ("Wdv ", "WebDriver initialization error : " + str(error))
 
     # Generate slides with logo first if enabled
     try:
@@ -138,9 +150,9 @@ if __name__ == "__main__":
         except SystemExit:
             os._exit(0)
             driver = None
-    # except Exception as ex:
-    #     try:
-    #         print ("Error : " + str(ex))
-    #         sys.exit(0)
-    #     except SystemExit:
-    #         os._exit(0)
+    except Exception as ex:
+        try:
+            print ("Error : " + str(ex))
+            sys.exit(0)
+        except SystemExit:
+            os._exit(0)

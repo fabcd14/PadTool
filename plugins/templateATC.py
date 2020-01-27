@@ -15,6 +15,7 @@ from fileexts import json_file
 from fileexts import xml_file
 from fileexts import txt_file
 from misc import img_file
+from misc import str_tools
 
 from selenium import webdriver
 from PIL import Image
@@ -34,7 +35,7 @@ def generate(cfg, driver, lastArtist, lastTitle, mode):
         slogan = cfg.get('general', 'slogan')
         outFolder = cfg.get('general', 'outFolder')
     except configparser.NoOptionError as error:
-        print("[ATC ] Mandatory parameter is missing : " + str(error))
+        str_tools.printMsg("ATC", "Mandatory parameter is missing : " + str(error))
         sys.exit(2)
 
     # Opening Template
@@ -62,37 +63,37 @@ def generate(cfg, driver, lastArtist, lastTitle, mode):
 
     try:
         filterArtist = json.loads(cfg.get('filter', 'artist'))
-        print("[ATC ] Filters defined for artist tag")
+        str_tools.printMsg("ATC ", "Filters defined for artist tag")
 
         for fart in filterArtist:
             if (str(fart) == artist):
                 filterFound = True
-                print ("[ATC ] Filter '" + str(fart) +"' found in artist tag")
+                str_tools.printMsg ("ATC ", "Filter '" + str(fart) +"' found in artist tag")
                 if(os.path.isfile(outFolder + "/music.jpg")):
                     os.remove(outFolder + "/music.jpg")
-                    print ("[ATC ] SLS exists, deleting slide...")
+                    str_tools.printMsg ("ATC ", "SLS exists, deleting slide...")
                     # Create file REQUEST_SLIDES_DIR_REREAD
                     f = open( outFolder + '/REQUEST_SLIDES_DIR_REREAD', 'w' )
                     f.write("")
                     f.close()  
     except configparser.NoOptionError as error:
-        print("[ATC ] No filters defined for artist tag, ignoring...")
+        str_tools.printMsg("ATC ", "No filters defined for artist tag, ignoring...")
     except configparser.NoSectionError as error:
-        print("[ATC ] No filters defined for artist tag, ignoring...")
+        str_tools.printMsg("ATC ", "No filters defined for artist tag, ignoring...")
     except json.decoder.JSONDecodeError as ex:
-        print("[ATC ] No filters defined for artist tag (bad format or empty), ignoring...")
+        str_tools.printMsg("ATC ", "No filters defined for artist tag (bad format or empty), ignoring...")
 
     # Filters management for title tag
     try:
         filterTitle = json.loads(cfg.get('filter', 'title'))
-        print("[ATC ] Filters defined for title tag")
+        str_tools.printMsg("ATC ", "Filters defined for title tag")
 
         for ftit in filterTitle:
             if (str(ftit) == title):
                 filterFound = True
-                print ("[ATC ] Filter '" + str(ftit) + "' found in title tag")
+                str_tools.printMsg ("ATC ", "Filter '" + str(ftit) + "' found in title tag")
                 if(os.path.isfile(outFolder + "/music.jpg")):
-                    print ("[ATC ] SLS exists, deleting slide...")
+                    str_tools.printMsg ("ATC ", "SLS exists, deleting slide...")
                     os.remove(outFolder + "/music.jpg")
                     # Create file REQUEST_SLIDES_DIR_REREAD
                     f = open( outFolder + '/REQUEST_SLIDES_DIR_REREAD', 'w' )
@@ -100,24 +101,24 @@ def generate(cfg, driver, lastArtist, lastTitle, mode):
                     f.close() 
                 break
     except configparser.NoOptionError as error:
-        print("[ATC ] No filters defined for title tag, ignoring...")
+        str_tools.printMsg("ATC ", "No filters defined for title tag, ignoring...")
     except configparser.NoSectionError as error:
-        print("[ATC ] No filters defined for title tag, ignoring...")
+        str_tools.printMsg("ATC ," "No filters defined for title tag, ignoring...")
     except json.decoder.JSONDecodeError as ex:
-        print("[ATC ] No filters defined for title tag (bad format or empty), ignoring...")
+        str_tools.printMsg("ATC ", "No filters defined for title tag (bad format or empty), ignoring...")
 
     if(mode != "dabctl"):
         if(artist == lastArtist and title == lastTitle):
-            print("[ATC ] SLS/DLS already generated, passing...")
+            str_tools.printMsg("ATC ", "SLS/DLS already generated, passing...")
             return artist, title
 
     # Put default cover when no cover image provided (eg. logo of the radio station)
     if not cover or filterFound == True:
-        print ("[ATC ] Putting default cover as no URL has been provided")
+        str_tools.printMsg ("ATC ", "Putting default cover as no URL has been provided")
         try:
             cover = cfg.get('source','defaultCover')
         except configparser.NoOptionError as error:
-            print("[ATC ] Mandatory parameter is missing : " + str(error))
+            str_tools.printMsg("ATC ", "Mandatory parameter is missing : " + str(error))
             sys.exit(2)
 
     # Some APIs do not use http or https prefix, add http:// when it's the case
@@ -131,9 +132,11 @@ def generate(cfg, driver, lastArtist, lastTitle, mode):
         content = f.read()
 
     if (cfg.get('dls','enabled') == "1"):
-        print ("[ATC ] Generating DLS...")
+        str_tools.printMsg ("ATC ", "Generating DLS...")
         if(filterFound == True or (artist == "" and title == "")):
             contentDls = "$radioName, $slogan"
+            if(os.path.isfile(outFolder + "/music.jpg")):
+                os.remove(outFolder + "/music.jpg")
         else:
             contentDls = cfg.get('dls', 'text')
 
@@ -193,14 +196,14 @@ def generate(cfg, driver, lastArtist, lastTitle, mode):
         try:
             if(cfg.get('dls', 'outFile') != ""):
                 if(dlsPlusEnabled == "1"):   
-                    print ("[ATC ] DLS exported with DLS+ : '" + contentDls + "' at '" + outDls + "'")
+                    str_tools.printMsg ("ATC ", "DLS exported with DLS+ : '" + contentDls + "' at '" + outDls + "'")
                 else:
-                    print ("[ATC ] DLS exported : '" + contentDls + "' at '" + outDls + "'")
+                    str_tools.printMsg ("ATC ", "DLS exported : '" + contentDls + "' at '" + outDls + "'")
         except:
             if(dlsPlusEnabled == "1"):   
-                print ("[ATC ] DLS exported with DLS+ : '" + contentDls + "' at '" + outFolder + "/dls.txt'")
+                str_tools.printMsg ("ATC ", "DLS exported with DLS+ : '" + contentDls + "' at '" + outFolder + "/dls.txt'")
             else:
-                print ("[ATC ] DLS exported : '" + contentDls + "' at '" + outDls + "'")
+                str_tools.printMsg ("ATC ", "DLS exported : '" + contentDls + "' at '" + outDls + "'")
 
     # If a filter has been found, we don't generate any artist, title slide
     if(filterFound == True):
@@ -216,7 +219,7 @@ def generate(cfg, driver, lastArtist, lastTitle, mode):
     if(len(str(title)) > 35):
         title = str(title)[0:35] + "..."
 
-    print ("[ATC ] Generating Slide...")
+    str_tools.printMsg ("ATC ", "Generating Slide...")
 
     content = content.replace("$artist", str(artist.encode("utf-8").decode('unicode_escape')))
     content = content.replace("$title", str(title.encode("utf-8").decode('unicode_escape')))
@@ -232,9 +235,9 @@ def generate(cfg, driver, lastArtist, lastTitle, mode):
 
     try:     
         img_file.generateImg(content, outFolder + "/music", driver)
-        print ("[ATC ] Slide generated at : '" + outFolder + "/music.jpg'")
+        str_tools.printMsg ("ATC ", "Slide generated at : '" + outFolder + "/music.jpg'")
     except Exception as ex:
-        print ("[ATC ] Slide generation error : " + str(ex))
+        str_tools.printMsg ("ATC ", "Slide generation error : " + str(ex))
     
     # Create file REQUEST_SLIDES_DIR_REREAD
     f = open(outFolder + '/REQUEST_SLIDES_DIR_REREAD', 'w' )

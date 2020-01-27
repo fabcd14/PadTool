@@ -1,5 +1,18 @@
 This file contains information about the changes done to PadTool in this repository
 
+2020-01-27: Fabien Cuny
+	(v0.9.0):
+		- Huge rework on Json parsing files : Able now to parse variable json sized files.
+		Actually in testing phase, because there is a lot of cases to think about.
+		Please post an issue if you encounter problems.
+		- Usage of ChromeDriver instead of PhantomJS which is deprecated. Please see INSTALL
+		in order to complete your installation.
+		- Modified slide generation processing in order to be fully compatible with ChromeDriver
+		- Added date/time in the output.
+		- Deletion of the residual ATC slide when none of the tags are found or filtered
+		- Nice-to-have : Creation of the "out" directory when cloning this repository in order to
+		launch examples without errors
+
 2020-01-15: Fabien Cuny
 	(v0.8.0):
 		- Happy new year 2020, full of digital radio ! :-)

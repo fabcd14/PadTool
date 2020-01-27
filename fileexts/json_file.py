@@ -2,34 +2,76 @@
 
 import json
 
-def iterate_all(iterable, returned="key"):
-    
-    """Returns an iterator that returns all keys or values
-       of a (nested) iterable.
-       
-       Arguments:
-           - iterable: <list> or <dictionary>
-           - returned: <string> "key" or "value"
-           
-       Returns:
-           - <iterator>
-    """
-  
-    if isinstance(iterable, dict):
-        for key, value in iterable.items():
-            if returned == "key":
-                yield key
-            elif returned == "value":
-                if not (isinstance(value, dict) or isinstance(value, list)):
-                    yield value
+from misc import str_tools
+
+def searchForJson(expr, d, parent=[], level=0):
+    found = 0
+    if(isinstance(d, dict)):
+        for k, v in d.items():
+            if(isinstance(v, dict)):
+                parent.append(k)
+                level = level+1
+                parent, level, found = searchForJson(expr, v, parent, level)
+                if (found == 1):
+                    return parent, level, found
+                parent.pop(len(parent)-1)
+            elif(isinstance(v, list)):
+                parent.append(k)
+                level = level+1
+                parent, level, found = searchForJson(expr, v, parent, level)
+                if (found == 1):
+                    return parent, level, found
+                parent.pop(len(parent)-1)
             else:
-                raise ValueError("'returned' keyword only accepts 'key' or 'value'.")
-            for ret in iterate_all(value, returned=returned):
-                yield ret
-    elif isinstance(iterable, list):
-        for el in iterable:
-            for ret in iterate_all(el, returned=returned):
-                yield ret
+                if (v == expr):
+                    parent.append(k)
+                    str_tools.printMsg ("JSON", "Tag '" + expr + "' found in : " + str(parent))
+                    return parent, level, 1
+    if(isinstance(d, list)):
+        idx = 0
+        for item in d:
+            if(isinstance(item, list)):
+                parent.append(item)
+                level = level+1
+                parent, level, found = searchForJson(expr, item, parent, level)
+                if (found == 1):
+                    return parent, level, found
+            else:
+                for k, v in item.items():
+                    if (v == expr):
+                        if(idx != 0):
+                            parent.append(idx)
+                        parent.append(k)
+                        str_tools.printMsg ("JSON", "Tag '" + expr + "' found in : " + str(parent))
+                        return parent, level, 1
+            idx = idx+1
+    return parent, level, found
+                
+def getTagInCurJson(jsonTags, jsonDict):
+    ret = ""
+    try:
+        if(isinstance(jsonTags[0][0], int)):
+            if(jsonTags[0][0] > len(jsonDict)):
+                str_tools.printMsg("JSON", "Source file sized differently from template (max: "+ jsonTags[0][0] +"). Parameter changed to max of json source: " + len(jsonDict) -1)
+                jsonTags[0][0] = len(jsonDict) -1
+    except:
+        pass
+
+    for i in range(len(jsonTags[0])):
+        r0 = jsonTags[0][i]
+        if(i==0): #First
+            ret = jsonDict[r0]
+        elif (i == len(jsonTags[0]) - 1): #Last one
+            if(isinstance(ret, list)):
+                ret = ret[0][r0]
+            else:
+                ret = ret[r0]
+        else: #n index in middle
+            if(isinstance(ret, list)):
+                ret = ret[0][r0]
+            else:
+                ret = ret[r0]
+    return ret
 
 def parseJson(file,tmpl):
     artist = ""
@@ -50,60 +92,36 @@ def parseJson(file,tmpl):
     except:
         pass
     
-    try:
-        jsnf = json.loads(file)
-    except: 
-        jsnf = json.loads("[" + file + "]")
-        
-    try:
-        jstp = json.loads(tmpl)
-    except: 
-        jstp = json.loads("[" + tmpl + "]")
-
-    # Init temporary work values for listing json values
-
-    idxLine   = 0
-    idxArtist = idxTitle = idxCover = -1
-
     # Identification of where are the $artist, the $title and the $cover tags are in the tmpl file
+    jsonDecoderTemplate = json.JSONDecoder()
 
-    for v in iterate_all(jstp, "value"):
-        if(v == "$artist"):
-            idxArtist = idxLine
-        elif(v == "$title"):
-            idxTitle = idxLine
-        elif(v == "$cover"):
-            idxCover = idxLine
-        if(idxArtist != -1 and idxTitle != -1 and idxCover != -1):
-            break
-        idxLine = idxLine + 1
+    jsonTemplate = ""
+    try:
+        jsonTemplate = jsonDecoderTemplate.decode(tmpl)
+    except:
+        jsonTemplate = jsonDecoderTemplate.decode("[" + tmpl + "]")
 
-    # Retrieving info from the json file with the help of the template file
-
-    idxLine = 0
-    for v in iterate_all(jsnf, "value"):
-        if(idxLine == idxArtist):
-            if(v != None):
-                artist = v
-                print ("[JSON] Found artist tag, item nb '" + str(idxLine) + "' with value : '" + str(artist) + "'")
-        elif(idxLine == idxTitle):
-            if(v != None):
-                title = v
-                print ("[JSON] Found title tag, item nb '" + str(idxLine) + "' with value : '" + str(title) + "'")
-        elif(idxLine == idxCover):
-            if(v != None):
-                cover = v
-                print ("[JSON] Found cover tag, item nb '" + str(idxLine) + "' with value : '" + str(cover) + "'")
-        if(artist != "" and title != "" and cover != ""):
-            break
-        idxLine = idxLine + 1   
+    jsonNF  = ""
+    try:
+        jsonNF = jsonDecoderTemplate.decode(file)
+    except:
+        jsonNF = jsonDecoderTemplate.decode("[" + file + "]")
+    
+    try:
+        artist = getTagInCurJson(searchForJson("$artist", jsonTemplate, []),jsonNF)
+        title = getTagInCurJson(searchForJson("$title", jsonTemplate, []),jsonNF)
+        cover = getTagInCurJson(searchForJson("$cover", jsonTemplate, []),jsonNF)
+    except:
+        artist = ""
+        title = ""
+        cover = ""
 
     if(artist == "" or title == "" or cover == ""):
-        print("[JSON] The following items aren't found :")
+        str_tools.printMsg("JSON" ,"The following items aren't found in the json source file:")
         if(artist == ""):
-            print("[JSON] $artist, ")
+            str_tools.printMsg("JSON", "$artist, ")
         if(title == ""):
-            print("[JSON] $title, ")
+            str_tools.printMsg("JSON", "$title, ")
         if(cover == ""):
-            print("[JSON] $cover")
+            str_tools.printMsg("JSON", "$cover")
     return artist, title, cover

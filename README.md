@@ -52,7 +52,8 @@ in the `TODO` file.
    
 Developed by:   
 Fabien Cuny *fabien.cuny7 [at] orange [dot] fr*   
-aka fabcd14, admin of the `DAB Radio Normandie` Facebook Page   
+aka `fabcd14`, admin of the `DAB Radio Normandie` Facebook Page   
 
-If you like my work, and want to support it, grab me a coffee or a beer here : https://www.buymeacoffee.com/fabcd14
+If you like my work, and want to support it, grab me a coffee or a beer here : https://www.buymeacoffee.com/fabcd14   
+   
 Thanks by advance :-)

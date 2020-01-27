@@ -6,11 +6,16 @@ from io import BytesIO
 import platform
 import os
 import time
+import base64
 
 def generateImg(content, filename, driver):
     driver.get("about:blank")
     driver.delete_all_cookies()
-    driver.get("data:text/html;charset=utf-8," + content)
+
+    encodedBytes = base64.b64encode(content.encode("utf-8"))
+    encodedStr = str(encodedBytes, "utf-8")
+
+    driver.get("data:text/html;charset=utf-8;base64," + encodedStr)
     
     time.sleep(1)
 

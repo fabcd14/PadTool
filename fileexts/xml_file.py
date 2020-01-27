@@ -3,6 +3,8 @@
 from xml.etree import cElementTree as ET
 from collections import defaultdict
 
+from misc import str_tools
+
 # Parsing xml file
 
 def parseXml(file,tmpl):
@@ -37,23 +39,23 @@ def parseXml(file,tmpl):
     for v in xmlf.iter():
         if(idxLine == idxArtist):
             artist = v.text
-            print ("[XML] Found artist tag, item nb '" + str(idxLine) + "' with value : '" + artist + "'")
+            str_tools.printMsg ("XML ", "Found artist tag, item nb '" + str(idxLine) + "' with value : '" + artist + "'")
         elif(idxLine == idxTitle):
             title = v.text
-            print ("[XML] Found title tag, item nb '" + str(idxLine) + "' with value : '" + title + "'")
+            str_tools.printMsg ("XML ", "Found title tag, item nb '" + str(idxLine) + "' with value : '" + title + "'")
         elif(idxLine == idxCover):
             cover = v.text
-            print ("[XML] Found cover tag, item nb '" + str(idxLine) + "' with value : '" + cover + "'")
+            str_tools.printMsg ("XML ", "Found cover tag, item nb '" + str(idxLine) + "' with value : '" + cover + "'")
         if(artist != "" and title != "" and cover != ""):
             break
         idxLine = idxLine + 1   
 
     if(artist == "" or title == "" or cover == ""):
-        print("[XML] The following items aren't found :")
+        str_tools.printMsg("XML ", "The following items aren't found :")
         if(artist == ""):
-            print("[XML] $artist, ")
+            str_tools.printMsg("XML ", "$artist, ")
         if(title == ""):
-            print("[XML] $title, ")
+            str_tools.printMsg("XML ", "$title, ")
         if(cover == ""):
-            print("[XML] $cover")
+            str_tools.printMsg("XML ", "$cover")
     return artist, title, cover

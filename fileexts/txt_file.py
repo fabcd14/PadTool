@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import string
+from misc import str_tools
 
 def parseTxt(file, tmpl):
     artist = ""
@@ -79,35 +80,35 @@ def parseTxt(file, tmpl):
                 extraBe = tmpl[idxArtistLine].index("$artist")
                 extraAf = len(tmpl[idxArtistLine])-(tmpl[idxArtistLine].index("$artist")+lenArtistTag)
                 artist = file[idxArtistLine][extraBe:-extraAf]
-                print ("[TXT ] Artist value : '" + artist + "'")
+                str_tools.printMsg ("TXT " ,"Artist value : '" + artist + "'")
             else:
                 artist = file[idxArtistLine]
-                print ("[TXT ] Artist value : '" + artist + "'")
+                str_tools.printMsg ("TXT ", "Artist value : '" + artist + "'")
         if(idxTitleLine != -1):
             if(len(tmpl[idxTitleLine]) != lenTitleTag):
                 extraBe = tmpl[idxTitleLine].index("$title")
                 extraAf = len(tmpl[idxTitleLine])-(tmpl[idxTitleLine].index("$title")+lenTitleTag)
                 title = file[idxTitleLine][extraBe:-extraAf]
-                print ("[TXT ] Title value : '" + title + "'")
+                str_tools.printMsg ("TXT ", "Title value : '" + title + "'")
             else:
                 title = file[idxTitleLine]
-                print ("[TXT ] Title value : '" + title + "'")
+                str_tools.printMsg ("TXT ", "Title value : '" + title + "'")
         if(idxCoverLine != -1):
             if(len(tmpl[idxCoverLine]) != lenCoverTag):
                 extraBe = tmpl[idxCoverLine].index("$cover")
                 extraAf = len(tmpl[idxCoverLine])-(tmpl[idxCoverLine].index("$cover")+lenCoverTag)
                 cover = file[idxCoverLine][extraBe:-extraAf]
-                print ("[TXT ] Cover value : '" + cover + "'")
+                str_tools.printMsg ("TXT ", "Cover value : '" + cover + "'")
             else:
                 cover = file[idxCoverLine]
-                print ("[TXT ] Cover value : '" + cover + "'")
+                str_tools.printMsg ("TXT ", "Cover value : '" + cover + "'")
 
     if(artist == "" or title == "" or cover == ""):
-        print("[TXT ] The following items aren't found :")
+        str_tools.printMsg("TXT ", "The following items aren't found :")
         if(artist == ""):
-            print("[TXT ] $artist, ")
+            str_tools.printMsg("TXT ", "$artist, ")
         if(title == ""):
-            print("[TXT ] $title, ")
+            str_tools.printMsg("TXT ", "$title, ")
         if(cover == ""):
-            print("[TXT ] $cover")
+            str_tools.printMsg("TXT ", "$cover")
     return artist, title, cover
