@@ -1,5 +1,14 @@
 This file contains information about the changes done to PadTool in this repository
 
+2020-02-10: Fabien Cuny
+	(v0.9.1):
+		- Json Parser stills in beta, but seems to work pretty well, as i've got many
+		positive feedbacks :-)
+		- Rework on ChromeDriver usage : some issues were produced by the driver and slides
+		weren't correctly generated after a couple of hours. 
+		Bugs were amplified with supervisor (many ChromeDriver processes were thrown and 
+		caused instabilities).
+
 2020-01-27: Fabien Cuny
 	(v0.9.0):
 		- Huge rework on Json parsing files : Able now to parse variable json sized files.

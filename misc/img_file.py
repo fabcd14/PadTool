@@ -8,7 +8,33 @@ import os
 import time
 import base64
 
-def generateImg(content, filename, driver):
+from selenium import webdriver
+from PIL import Image
+
+from misc import str_tools
+
+def driverInit():
+    driver = None
+    str_tools.printMsg ("Wdv ", "Initializing WebDriver...")
+    try:
+        #Formerly with PhantomJS until v0.8.0
+        #driver = webdriver.PhantomJS(service_args=["--disk-cache=false", "--ignore-ssl-errors=true", "--ssl-protocol=any"])
+        
+        #Now with ChromeDriver since v0.9.0
+        options = webdriver.ChromeOptions()
+        options.add_argument('headless')
+        options.add_argument('hide-scrollbars')
+        options.add_argument('log-level=2')
+
+        driver = webdriver.Chrome(options=options)
+        driver.set_window_size(320, 240)
+        str_tools.printMsg ("Wdv ", "WebDriver Initialized")
+    except Exception as error:
+        str_tools.printMsg ("Wdv ", "WebDriver initialization error : " + str(error))
+    return driver
+
+def generateImg(content, filename):
+    driver = driverInit()
     driver.get("about:blank")
     driver.delete_all_cookies()
 
@@ -33,3 +59,4 @@ def generateImg(content, filename, driver):
         quality = 60
     
     region.save(filename + ".jpg", 'JPEG', optimize=True, quality=quality)
+    driver.quit()

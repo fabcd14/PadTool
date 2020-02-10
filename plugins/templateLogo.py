@@ -9,7 +9,7 @@ import platform
 from misc import img_file
 from misc import str_tools
 
-def generate(cfg, driver):
+def generate(cfg):
     # Parameters to generate SLS from the config file
     try:
         logo = cfg.get('general', 'logoUrl')
@@ -30,7 +30,7 @@ def generate(cfg, driver):
     content = content.replace("$colorl", colorl)
 
     try: 
-        img_file.generateImg(content, outFolder + "/logo", driver)
+        img_file.generateImg(content, outFolder + "/logo")
         str_tools.printMsg ("Logo", "Slide generated at : '" + outFolder + "/logo.jpg'")
     except Exception as ex:
         str_tools.printMsg ("Logo", "Slide generation error : " + str(ex))

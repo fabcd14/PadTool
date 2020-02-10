@@ -23,6 +23,8 @@ For Ubuntu and other Linux distributions (usage of Chromium which is Open Source
     $ pip3 install selenium
     $ pip3 install imgkit
     $ pip3 install pillow
+   
+Tip : On Debian distributions, packages for chromium-brower and chromium-chromedriver are named respectively `chromium` and `chromium-driver`
 
 These commands works properly on Ubuntu 18.04, the package names may differ if you are using a different distribution
 

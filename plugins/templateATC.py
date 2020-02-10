@@ -17,10 +17,7 @@ from fileexts import txt_file
 from misc import img_file
 from misc import str_tools
 
-from selenium import webdriver
-from PIL import Image
-
-def generate(cfg, driver, lastArtist, lastTitle, mode):
+def generate(cfg, lastArtist, lastTitle, mode):
     # Avoid SSL errors
     ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -236,7 +233,7 @@ def generate(cfg, driver, lastArtist, lastTitle, mode):
     content = content.replace("$cover", cover)
 
     try:     
-        img_file.generateImg(content, outFolder + "/music", driver)
+        img_file.generateImg(content, outFolder + "/music")
         str_tools.printMsg ("ATC ", "Slide generated at : '" + outFolder + "/music.jpg'")
     except Exception as ex:
         str_tools.printMsg ("ATC ", "Slide generation error : " + str(ex))

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-version = "v0.9.0"
+version = "v0.9.1"
 
 #Import system libraries
 import configparser
@@ -19,8 +19,6 @@ import threading
 from urllib.request import *
 
 from misc import str_tools
-
-driver = None
 
 def header():
     print ("PadTool " + version + " - MOT SLS and DLS generator for PAD encoder")
@@ -100,22 +98,22 @@ def main(argv):
         install_opener(opener)
 
     # Webdriver Init
-    str_tools.printMsg ("Wdv ", "Initializing WebDriver...")
-    try:
-        #Formerly with PhantomJS until v0.8.0
-        #driver = webdriver.PhantomJS(service_args=["--disk-cache=false", "--ignore-ssl-errors=true", "--ssl-protocol=any"])
+    # str_tools.printMsg ("Wdv ", "Initializing WebDriver...")
+    # try:
+    #     #Formerly with PhantomJS until v0.8.0
+    #     #driver = webdriver.PhantomJS(service_args=["--disk-cache=false", "--ignore-ssl-errors=true", "--ssl-protocol=any"])
         
-        #Now with ChromeDriver since v0.9.0
-        options = webdriver.ChromeOptions()
-        options.add_argument('headless')
-        options.add_argument('hide-scrollbars')
-        options.add_argument('log-level=2')
+    #     #Now with ChromeDriver since v0.9.0
+    #     options = webdriver.ChromeOptions()
+    #     options.add_argument('headless')
+    #     options.add_argument('hide-scrollbars')
+    #     options.add_argument('log-level=2')
 
-        driver = webdriver.Chrome(options=options)
-        driver.set_window_size(320, 240)
-        str_tools.printMsg ("Wdv ", "WebDriver Initialized")
-    except Exception as error:
-        str_tools.printMsg ("Wdv ", "WebDriver initialization error : " + str(error))
+    #     driver = webdriver.Chrome(options=options)
+    #     driver.set_window_size(320, 240)
+    #     str_tools.printMsg ("Wdv ", "WebDriver Initialized")
+    # except Exception as error:
+    #     str_tools.printMsg ("Wdv ", "WebDriver initialization error : " + str(error))
 
     # Generate slides with logo first if enabled
     try:
@@ -124,16 +122,16 @@ def main(argv):
 
         if(mode == "standalone"):
             if(cfg.get('slides', 'logo') == "1"):
-                templateLogo.generate(cfg, driver)
+                templateLogo.generate(cfg)
 
         while True:
             if(mode == "dabctl"):
                 if(cfg.get('slides', 'logo') == "1"):
-                    templateLogo.generate(cfg, driver)
+                    templateLogo.generate(cfg)
 
             #Generating artist/title/cover slide (with DLS+ if selected)
             if(cfg.get('slides', 'music') == "1"):
-                artist, title = templateATC.generate(cfg, driver, artist, title, mode)
+                artist, title = templateATC.generate(cfg, artist, title, mode)
             time.sleep(int(timer))
     except configparser.NoOptionError as error:
         print("Mandatory parameter is missing : " + str(error))
