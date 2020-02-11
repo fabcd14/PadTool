@@ -22,9 +22,19 @@ def generate(cfg):
     str_tools.printMsg ("Logo", "Generating Slide...")
 
     # Data masking replacement with correct values
-    content = ""
-    with io.open('themes/logo.html', 'r', encoding="utf-8") as f:
-        content = f.read()
+    content = """
+        <html>
+            <head>
+                <style type="text/css">
+                    body { margin:auto; background-color:$colorl; }
+                    .conteneur{ width: 315px; height: 235px; text-align: center; display: table-cell; vertical-align: middle; }
+                    img { max-width: 300px; max-height: 220px; }
+                </style>
+            </head>
+            
+            <body> <div class="conteneur"> <img src="$logo" /> </div> </body>
+        </html>
+    """
 
     content = content.replace("$logo", logo)
     content = content.replace("$colorl", colorl)

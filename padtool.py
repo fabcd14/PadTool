@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-version = "v0.9.1"
+version = "v0.9.2"
 
 #Import system libraries
 import configparser
@@ -96,24 +96,6 @@ def main(argv):
         proxy_handler = ProxyHandler({'http': cfg.get('proxy', 'http'), 'https': cfg.get('proxy', 'https')})
         opener = build_opener(proxy_handler)
         install_opener(opener)
-
-    # Webdriver Init
-    # str_tools.printMsg ("Wdv ", "Initializing WebDriver...")
-    # try:
-    #     #Formerly with PhantomJS until v0.8.0
-    #     #driver = webdriver.PhantomJS(service_args=["--disk-cache=false", "--ignore-ssl-errors=true", "--ssl-protocol=any"])
-        
-    #     #Now with ChromeDriver since v0.9.0
-    #     options = webdriver.ChromeOptions()
-    #     options.add_argument('headless')
-    #     options.add_argument('hide-scrollbars')
-    #     options.add_argument('log-level=2')
-
-    #     driver = webdriver.Chrome(options=options)
-    #     driver.set_window_size(320, 240)
-    #     str_tools.printMsg ("Wdv ", "WebDriver Initialized")
-    # except Exception as error:
-    #     str_tools.printMsg ("Wdv ", "WebDriver initialization error : " + str(error))
 
     # Generate slides with logo first if enabled
     try:

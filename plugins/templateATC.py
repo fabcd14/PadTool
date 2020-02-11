@@ -104,11 +104,6 @@ def generate(cfg, lastArtist, lastTitle, mode):
     except json.decoder.JSONDecodeError as ex:
         str_tools.printMsg("ATC ", "No filters defined for title tag (bad format or empty), ignoring...")
 
-    if(mode != "dabctl"):
-        if(artist == lastArtist and title == lastTitle):
-            str_tools.printMsg("ATC ", "SLS/DLS already generated, passing...")
-            return artist, title
-
     # Put default cover when no cover image provided (eg. logo of the radio station)
     if not cover or filterFound == True:
         str_tools.printMsg ("ATC ", "Putting default cover as no URL has been provided")
@@ -118,10 +113,86 @@ def generate(cfg, lastArtist, lastTitle, mode):
             str_tools.printMsg("ATC ", "Mandatory parameter is missing : " + str(error))
             sys.exit(2)
 
+    tempArtist = str(lastArtist).replace("...", "")
+    tempTitle = str(lastTitle).replace("...", "")
+
     # Some APIs do not use http or https prefix, add http:// when it's the case
     if (len(cover) > 0):
         if("http" not in cover):
             cover = str(cfg.get('general', 'prefix')) + cover
+            if(filterFound == True or (artist == "" and title == "")):
+                contentDls = "$radioName, $slogan"
+                if(os.path.isfile(outFolder + "/music.jpg")):
+                    os.remove(outFolder + "/music.jpg")
+            else:
+                contentDls = cfg.get('dls', 'text')
+
+            lenDls       = len(contentDls)
+            lenArtist    = len(str(artist))
+            lenTitle     = len(str(title))
+            lenRadioName = len(radioName)
+
+            contentDls = contentDls.replace("$artist", str(artist))
+            contentDls = contentDls.replace("$title", str(title))
+            contentDls = contentDls.replace("$radioName", radioName)
+            contentDls = contentDls.replace("$slogan", slogan)
+
+            idxArtist    = -1
+            idxTitle     = -1
+            idxRadioName = -1
+
+            if (artist in contentDls and artist != ""):
+                idxArtist = contentDls.index(artist)
+            if (title in contentDls and title != ""):
+                idxTitle = contentDls.index(title)
+            if (radioName in contentDls and radioName != ""):
+                idxRadioName = contentDls.index(radioName)
+
+            dlsPlusEnabled = "0"
+            try:
+                # Parsing option in the config file if the DLS+ is enabled or not.
+                if(cfg.get('dls', 'dlsPlus') != ""):
+                    dlsPlusEnabled = cfg.get('dls', 'dlsPlus')
+            except:
+                dlsPlusEnabled = "0"
+
+            if(dlsPlusEnabled == "1"):    
+                dlPlus = "##### parameters { #####\nDL_PLUS=1\nDL_PLUS_ITEM_TOGGLE=0\nDL_PLUS_ITEM_RUNNING=1\n"
+                
+                if (idxRadioName != -1):
+                    dlPlus = dlPlus + "DL_PLUS_TAG=32 " + str(idxRadioName) + " " + str(lenRadioName -1) + "\n"
+                if (idxTitle != -1):
+                    dlPlus = dlPlus + "DL_PLUS_TAG=1 " + str(idxTitle) + " " + str(lenTitle - 1) + "\n"
+                if (idxArtist != -1):
+                    dlPlus = dlPlus + "DL_PLUS_TAG=4 " + str(idxArtist) + " " + str(lenArtist - 1) + "\n"
+                dlPlus = dlPlus + "##### parameters } #####"
+            outDls = outFolder + '/dls.txt'
+            try:
+                # Parsing option in the config file if the DLS file should be generated in an other path.
+                if(cfg.get('dls', 'outFile') != ""):
+                    outDls = cfg.get('dls', 'outFile') 
+            except:
+                pass
+            f = open(outDls, 'w')
+            if(dlsPlusEnabled == "1"):   
+                f.write(dlPlus + "\n" + contentDls)
+            else:
+                f.write(contentDls)
+            f.close()
+
+            if((artist not in tempArtist) and (title not in tempTitle)):
+                try:
+                    if(cfg.get('dls', 'outFile') != ""):
+                        if(dlsPlusEnabled == "1"):
+                            str_tools.printMsg ("ATC ", "DLS exported with DLS+ : '" + contentDls + "' at '" + outDls + "'")
+                        else:
+                            str_tools.printMsg ("ATC ", "DLS exported : '" + contentDls + "' at '" + outDls + "'")
+                except:
+                    if(dlsPlusEnabled == "1"):   
+                        str_tools.printMsg ("ATC ", "DLS exported with DLS+ : '" + contentDls + "' at '" + outFolder + "/dls.txt'")
+                    else:
+                        str_tools.printMsg ("ATC ", "DLS exported : '" + contentDls + "' at '" + outDls + "'")
+
 
     # Data masking replacement with correct values
     content = ""
@@ -129,78 +200,79 @@ def generate(cfg, lastArtist, lastTitle, mode):
         content = f.read()
 
     if (cfg.get('dls','enabled') == "1"):
-        str_tools.printMsg ("ATC ", "Generating DLS...")
-        if(filterFound == True or (artist == "" and title == "")):
-            contentDls = "$radioName, $slogan"
-            if(os.path.isfile(outFolder + "/music.jpg")):
-                os.remove(outFolder + "/music.jpg")
-        else:
-            contentDls = cfg.get('dls', 'text')
+        if((artist not in tempArtist) and (title not in tempTitle)):
+            str_tools.printMsg ("ATC ", "Generating DLS...")
+            if(filterFound == True or (artist == "" and title == "")):
+                contentDls = "$radioName, $slogan"
+                if(os.path.isfile(outFolder + "/music.jpg")):
+                    os.remove(outFolder + "/music.jpg")
+            else:
+                contentDls = cfg.get('dls', 'text')
 
-        lenDls       = len(contentDls)
-        lenArtist    = len(str(artist))
-        lenTitle     = len(str(title))
-        lenRadioName = len(radioName)
+            lenDls       = len(contentDls)
+            lenArtist    = len(str(artist))
+            lenTitle     = len(str(title))
+            lenRadioName = len(radioName)
 
-        contentDls = contentDls.replace("$artist", str(artist))
-        contentDls = contentDls.replace("$title", str(title))
-        contentDls = contentDls.replace("$radioName", radioName)
-        contentDls = contentDls.replace("$slogan", slogan)
+            contentDls = contentDls.replace("$artist", str(artist))
+            contentDls = contentDls.replace("$title", str(title))
+            contentDls = contentDls.replace("$radioName", radioName)
+            contentDls = contentDls.replace("$slogan", slogan)
 
-        idxArtist    = -1
-        idxTitle     = -1
-        idxRadioName = -1
+            idxArtist    = -1
+            idxTitle     = -1
+            idxRadioName = -1
 
-        if (artist in contentDls and artist != ""):
-            idxArtist = contentDls.index(artist)
-        if (title in contentDls and title != ""):
-            idxTitle = contentDls.index(title)
-        if (radioName in contentDls and radioName != ""):
-            idxRadioName = contentDls.index(radioName)
+            if (artist in contentDls and artist != ""):
+                idxArtist = contentDls.index(artist)
+            if (title in contentDls and title != ""):
+                idxTitle = contentDls.index(title)
+            if (radioName in contentDls and radioName != ""):
+                idxRadioName = contentDls.index(radioName)
 
-        dlsPlusEnabled = "0"
-        try:
-            # Parsing option in the config file if the DLS+ is enabled or not.
-            if(cfg.get('dls', 'dlsPlus') != ""):
-                dlsPlusEnabled = cfg.get('dls', 'dlsPlus')
-        except:
             dlsPlusEnabled = "0"
+            try:
+                # Parsing option in the config file if the DLS+ is enabled or not.
+                if(cfg.get('dls', 'dlsPlus') != ""):
+                    dlsPlusEnabled = cfg.get('dls', 'dlsPlus')
+            except:
+                dlsPlusEnabled = "0"
 
-        if(dlsPlusEnabled == "1"):    
-            dlPlus = "##### parameters { #####\nDL_PLUS=1\nDL_PLUS_ITEM_TOGGLE=0\nDL_PLUS_ITEM_RUNNING=1\n"
-            
-            if (idxRadioName != -1):
-                dlPlus = dlPlus + "DL_PLUS_TAG=32 " + str(idxRadioName) + " " + str(lenRadioName -1) + "\n"
-            if (idxTitle != -1):
-                dlPlus = dlPlus + "DL_PLUS_TAG=1 " + str(idxTitle) + " " + str(lenTitle - 1) + "\n"
-            if (idxArtist != -1):
-                dlPlus = dlPlus + "DL_PLUS_TAG=4 " + str(idxArtist) + " " + str(lenArtist - 1) + "\n"
-            dlPlus = dlPlus + "##### parameters } #####"
-        outDls = outFolder + '/dls.txt'
-        try:
-            # Parsing option in the config file if the DLS file should be generated in an other path.
-            if(cfg.get('dls', 'outFile') != ""):
-                outDls = cfg.get('dls', 'outFile') 
-        except:
-            pass
-        f = open(outDls, 'w')
-        if(dlsPlusEnabled == "1"):   
-            f.write(dlPlus + "\n" + contentDls)
-        else:
-            f.write(contentDls)
-        f.close()
+            if(dlsPlusEnabled == "1"):    
+                dlPlus = "##### parameters { #####\nDL_PLUS=1\nDL_PLUS_ITEM_TOGGLE=0\nDL_PLUS_ITEM_RUNNING=1\n"
+                
+                if (idxRadioName != -1):
+                    dlPlus = dlPlus + "DL_PLUS_TAG=32 " + str(idxRadioName) + " " + str(lenRadioName -1) + "\n"
+                if (idxTitle != -1):
+                    dlPlus = dlPlus + "DL_PLUS_TAG=1 " + str(idxTitle) + " " + str(lenTitle - 1) + "\n"
+                if (idxArtist != -1):
+                    dlPlus = dlPlus + "DL_PLUS_TAG=4 " + str(idxArtist) + " " + str(lenArtist - 1) + "\n"
+                dlPlus = dlPlus + "##### parameters } #####"
+            outDls = outFolder + '/dls.txt'
+            try:
+                # Parsing option in the config file if the DLS file should be generated in an other path.
+                if(cfg.get('dls', 'outFile') != ""):
+                    outDls = cfg.get('dls', 'outFile') 
+            except:
+                pass
+            f = open(outDls, 'w')
+            if(dlsPlusEnabled == "1"):   
+                f.write(dlPlus + "\n" + contentDls)
+            else:
+                f.write(contentDls)
+            f.close()
 
-        try:
-            if(cfg.get('dls', 'outFile') != ""):
+            try:
+                if(cfg.get('dls', 'outFile') != ""):
+                    if(dlsPlusEnabled == "1"):
+                        str_tools.printMsg ("ATC ", "DLS exported with DLS+ : '" + contentDls + "' at '" + outDls + "'")
+                    else:
+                        str_tools.printMsg ("ATC ", "DLS exported : '" + contentDls + "' at '" + outDls + "'")
+            except:
                 if(dlsPlusEnabled == "1"):   
-                    str_tools.printMsg ("ATC ", "DLS exported with DLS+ : '" + contentDls + "' at '" + outDls + "'")
+                    str_tools.printMsg ("ATC ", "DLS exported with DLS+ : '" + contentDls + "' at '" + outFolder + "/dls.txt'")
                 else:
                     str_tools.printMsg ("ATC ", "DLS exported : '" + contentDls + "' at '" + outDls + "'")
-        except:
-            if(dlsPlusEnabled == "1"):   
-                str_tools.printMsg ("ATC ", "DLS exported with DLS+ : '" + contentDls + "' at '" + outFolder + "/dls.txt'")
-            else:
-                str_tools.printMsg ("ATC ", "DLS exported : '" + contentDls + "' at '" + outDls + "'")
 
     # If a filter has been found, we don't generate any artist, title slide
     if(filterFound == True):
@@ -215,6 +287,11 @@ def generate(cfg, lastArtist, lastTitle, mode):
         artist = str(artist)[0:35] + "..."
     if(len(str(title)) > 35):
         title = str(title)[0:35] + "..."
+
+    if(mode != "dabctl"):
+        if(artist == lastArtist and title == lastTitle):
+            str_tools.printMsg("ATC ", "SLS/DLS already generated, passing...")
+            return artist, title
 
     str_tools.printMsg ("ATC ", "Generating Slide...")
 

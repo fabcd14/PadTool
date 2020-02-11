@@ -23,6 +23,8 @@ def driverInit():
         #Now with ChromeDriver since v0.9.0
         options = webdriver.ChromeOptions()
         options.add_argument('headless')
+        options.add_argument('no-sandbox')
+        options.add_argument('disable-dev-shm-usage')
         options.add_argument('hide-scrollbars')
         options.add_argument('log-level=2')
 

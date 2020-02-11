@@ -1,5 +1,14 @@
 This file contains information about the changes done to PadTool in this repository
 
+2020-02-11: Fabien Cuny
+	(v0.9.2):
+		Bugfixes :
+		- Changed the way of logo slide generation (which could cause crashes with absolute paths)
+		- Changed options in ChromeDriver usage to prevent Chrome failures in certain cases
+		- In standalone mode, DLS and Slides were regenerated if artist and title were the same
+		(reduces files generations and ChromeDriver calls). This part has to be optimized 
+		in the future
+
 2020-02-10: Fabien Cuny
 	(v0.9.1):
 		- Json Parser stills in beta, but seems to work pretty well, as i've got many
