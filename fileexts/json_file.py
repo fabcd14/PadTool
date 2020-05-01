@@ -1,5 +1,21 @@
 #!/usr/bin/python3
 
+# Copyright (C) 2020
+# Fabien Cuny, fabien.cuny7 at orange.fr
+# http://www.github.com/fabcd14/PadTool
+
+# This file is part of PadTool.
+# PadTool is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# PadTool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with PadTool.  If not, see <http://www.gnu.org/licenses/>.
+
 import json
 
 from misc import str_tools
@@ -39,7 +55,7 @@ def searchForJson(expr, d, parent=[], level=0):
             else:
                 for k, v in item.items():
                     if (v == expr):
-                        if(idx != 0):
+                        if(d.count != 1):
                             parent.append(idx)
                         parent.append(k)
                         str_tools.printMsg ("JSON", "Tag '" + expr + "' found in : " + str(parent))
@@ -91,7 +107,8 @@ def parseJson(file,tmpl):
             tmpl = tmpl[0:-1]
     except:
         pass
-    
+
+   
     # Identification of where are the $artist, the $title and the $cover tags are in the tmpl file
     jsonDecoderTemplate = json.JSONDecoder()
 
@@ -106,7 +123,7 @@ def parseJson(file,tmpl):
         jsonNF = jsonDecoderTemplate.decode(file)
     except:
         jsonNF = jsonDecoderTemplate.decode("[" + file + "]")
-    
+
     try:
         artist = getTagInCurJson(searchForJson("$artist", jsonTemplate, []),jsonNF)
         title = getTagInCurJson(searchForJson("$title", jsonTemplate, []),jsonNF)

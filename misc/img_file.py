@@ -1,3 +1,19 @@
+# Copyright (C) 2020
+# Fabien Cuny, fabien.cuny7 at orange.fr
+# http://www.github.com/fabcd14/PadTool
+
+# This file is part of PadTool.
+# PadTool is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# PadTool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with PadTool.  If not, see <http://www.gnu.org/licenses/>.
+
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
@@ -7,6 +23,7 @@ import platform
 import os
 import time
 import base64
+import sys
 
 from selenium import webdriver
 from PIL import Image
@@ -33,6 +50,7 @@ def driverInit():
         str_tools.printMsg ("Wdv ", "WebDriver Initialized")
     except Exception as error:
         str_tools.printMsg ("Wdv ", "WebDriver initialization error : " + str(error))
+        sys.exit(2)
     return driver
 
 def generateImg(content, filename):

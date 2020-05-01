@@ -1,7 +1,23 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
-version = "v0.9.2"
+# Copyright (C) 2020
+# Fabien Cuny, fabien.cuny7 at orange.fr
+# http://www.github.com/fabcd14/PadTool
+
+# This file is part of PadTool.
+# PadTool is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# PadTool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with PadTool.  If not, see <http://www.gnu.org/licenses/>.
+
+version = "v0.9.3"
 
 #Import system libraries
 import configparser
@@ -19,6 +35,7 @@ import threading
 from urllib.request import *
 
 from misc import str_tools
+from plugins import _pluginsManagement
 
 def header():
     print ("PadTool " + version + " - MOT SLS and DLS generator for PAD encoder")
@@ -32,10 +49,6 @@ def header():
     print (" ")
 
 def main(argv):
-    #Import Plugins
-    from plugins import templateATC
-    from plugins import templateLogo
-
     header()
 
     inputFile = ''
@@ -83,7 +96,7 @@ def main(argv):
             print("Mandatory parameter is missing: " + str(error))
             sys.exit(2)
     elif (mode == 'server'):
-        print ("Server mode")
+        print ("Server mode, not implemented yet :(")
     elif (mode == 'dabctl'):
         print ("DAB-CTL mode, timer period overriden to: 15s")
         timer = 15
@@ -92,29 +105,14 @@ def main(argv):
         sys.exit(2)
 
     # For Proxy
-    if int(cfg.get('proxy', 'enabled')) == 1:   
+    if (cfg.get('proxy', 'enabled') == "1"):   
         proxy_handler = ProxyHandler({'http': cfg.get('proxy', 'http'), 'https': cfg.get('proxy', 'https')})
         opener = build_opener(proxy_handler)
         install_opener(opener)
 
     # Generate slides with logo first if enabled
     try:
-        title = None
-        artist = None
-
-        if(mode == "standalone"):
-            if(cfg.get('slides', 'logo') == "1"):
-                templateLogo.generate(cfg)
-
-        while True:
-            if(mode == "dabctl"):
-                if(cfg.get('slides', 'logo') == "1"):
-                    templateLogo.generate(cfg)
-
-            #Generating artist/title/cover slide (with DLS+ if selected)
-            if(cfg.get('slides', 'music') == "1"):
-                artist, title = templateATC.generate(cfg, artist, title, mode)
-            time.sleep(int(timer))
+        _pluginsManagement.initPlugins(inputFile, cfg, mode, timer)
     except configparser.NoOptionError as error:
         print("Mandatory parameter is missing : " + str(error))
         sys.exit(2)
