@@ -1,5 +1,19 @@
 This file contains information about the changes done to PadTool in this repository
 
+2020-05-26: Fabien Cuny
+	(v0.9.4):
+		- Automatic research for a cover, if not defined, can be enabled via the 
+		[source]->researchCover parameter (0=disabled, 1=enabled) thanks to the CoverPy lib.
+		Please see INSTALL in order to complete your installation.
+		- Improved JSON parsing algorithm
+		- DLS+ bugfix, not always generated when artistForm or titleForm parameters were used
+		- Network fix: when a file (specified in [source]-> url) is not available due to
+		network issues, or not found, PadTool tries to gather data from this file 5 times
+		before being crashed. It avoids unexpected crashes.
+		- Rework on plugins integration (calls each 5-10-15-30-60min)
+		- First release with Unit Tests and Continuous Integration tests thanks to 
+		PyTest and Travis CI included from this release (first batch of tests)
+
 2020-05-01: Fabien Cuny
 	(v0.9.3):
 		- Json parser modification: several trials didn't work as expected, especially if
@@ -16,8 +30,8 @@ This file contains information about the changes done to PadTool in this reposit
 		the [dls]->defaultDls parameter in the config file. When this option is not mentioned in 
 		the config file, the defaultDls is "$radioName, $slogan"
 		- Better integration for future plugins
-		- Minor bugfix: DLS are generated with the default DLS (by default "$radioName, $slogan"
-		when the artist and title tags are found in the template but not in the source file).
+		- Minor bugfix: DLS are generated with the default DLS (by default "$radioName, $slogan")
+		when the artist and title tags are found in the template but not in the source file.
 
 2020-02-11: Fabien Cuny
 	(v0.9.2):

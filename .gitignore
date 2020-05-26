@@ -163,3 +163,7 @@ out/music.jpg
 out/REQUEST_SLIDES_DIR_REREAD
 temp.py
 config-jam.ini
+examples-template/template-ouesttrack.json
+config-frinfo.ini
+config-rb.ini
+config-otr.ini

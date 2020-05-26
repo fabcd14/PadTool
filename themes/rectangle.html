@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>SuperSLS</title>
+        <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Oswald" />
+        <style>
+            body {
+                background-color:$color2;
+                font-family: 'Oswald'; 
+                width:320px; 
+                height:240px;
+            }
+
+            body::after {
+                content: "";
+                background: url($backurl);
+                background-position:bottom;
+                opacity: 0.3;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                right: 0;
+                position: absolute;
+                z-index: -1;
+            }
+
+            #square
+            {
+                width:322px;
+                height:82px;
+                background-color:$color1;
+                margin-left: -10px;
+                margin-top: -10px;
+/*                margin-bottom:10px;*/
+            }
+
+            #logo
+            {
+                width:320px;
+                height:80px;
+                background-repeat:no-repeat;
+                background-size:contain;
+                margin-top:10px;
+                background-position:center;
+                background-image:url('$logo');
+            }
+         
+            #cover 
+            {
+                margin-top:-4px;
+                margin-left:-9px;
+                float:left;
+                background-size: 164px 164px;
+                background-image:url('$cover');
+                width:164px;
+                height:164px;
+            }
+            
+            #title 
+            {   
+                /*margin-top:50px;*/
+                margin-left:160px;
+                width:145px;
+                font-size:16px;
+                color:white;
+            }
+        </style>
+    </head>
+    <body>
+        <div id='square'>
+            <div id="logo"></div>
+        </div>
+        <div id='cover'></div>
+        <div id='title'>
+            <p style='font-style:italic;'>On Air</p><b>$artist</b><br>$title
+        </div>
+    </body>
+</html>

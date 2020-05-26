@@ -1,0 +1,16 @@
+language: python
+python:
+  - "3.4"
+  - "3.5"
+  - "3.6"      # current default Python on Travis CI
+  - "3.7"
+  - "3.8"
+# command to install dependencies
+install:
+  - pip3 install selenium
+  - pip3 install imgkit
+  - pip3 install pillow
+  * pip3 install coverpy
+# command to run tests
+script:
+  - pytest padtool-tests.py

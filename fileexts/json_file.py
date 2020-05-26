@@ -54,12 +54,19 @@ def searchForJson(expr, d, parent=[], level=0):
                     return parent, level, found
             else:
                 for k, v in item.items():
-                    if (v == expr):
-                        if(d.count != 1):
-                            parent.append(idx)
+                    if(isinstance(v, dict)):
                         parent.append(k)
-                        str_tools.printMsg ("JSON", "Tag '" + expr + "' found in : " + str(parent))
-                        return parent, level, 1
+                        level = level+1
+                        parent, level, found = searchForJson(expr, v, parent, level)
+                        if (found == 1):
+                            return parent, level, found
+                    else:
+                        if (v == expr):
+                            if(d.count != 1):
+                                parent.append(idx)
+                            parent.append(k)
+                            str_tools.printMsg ("JSON", "Tag '" + expr + "' found in : " + str(parent))
+                            return parent, level, 1
             idx = idx+1
     return parent, level, found
                 
@@ -94,8 +101,11 @@ def parseJson(file,tmpl):
     title  = ""
     cover  = ""
 
-
-    file = file.decode('utf-8')
+    try:
+        file = file.decode('utf-8')
+    except:
+        pass
+    
     try:
         if (file.index("{") != 0):
             file = file[file.index("{"):]

@@ -17,9 +17,10 @@
 # You should have received a copy of the GNU General Public License
 # along with PadTool.  If not, see <http://www.gnu.org/licenses/>.
 
-version = "v0.9.3"
+version = "v0.9.4"
 
-#Import system libraries
+# Import system libraries
+
 import configparser
 from selenium import webdriver
 import selenium
@@ -42,7 +43,7 @@ def header():
     print (" By Fabien Cuny (fabcd14) - DAB Radio Normandie")
     print (" ")
     print (" Reads json / xml / txt / html data from a specific file, and outputs DLS+ text")
-    print (" from these informations and generates nice SLS with personnalized templates")
+    print (" from these informations and generates SLS with personnalized templates")
     print (" https://github.com/fabcd14")
     print (" ")
     print ("-------------------------------------------------------------------------------")

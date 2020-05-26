@@ -12,6 +12,7 @@ import ssl
 import html
 import time
 import sys
+import coverpy
 
 from fileexts import json_file
 from fileexts import xml_file
@@ -56,8 +57,23 @@ def generate(cfg, lastArtist, lastTitle, mode):
                 str_tools.printMsg("ATC ", "[" + str(cptFails) + "/5] Failed 5 times to open source file. PadTool will exits...")
                 sys.exit(2)
         
-    tmpl = ""
+    # Parsing formalisms for $artist and $title tags
+    artistForm = 0
+    titleForm = 0
+    try:
+        artistForm = cfg.get('general','artistForm')
+        if(artistForm == ""): 
+            artistForm = 0
+    except:
+        artistForm = 0
+    try:
+        titleForm = cfg.get('general','titleForm')
+        if(titleForm == ""): 
+            titleForm = 0
+    except:
+        titleForm = 0
 
+    tmpl = ""
     with open(cfg.get('source', 'template'), "r") as template:
         for line in template:
             tmpl = tmpl + line
@@ -70,9 +86,13 @@ def generate(cfg, lastArtist, lastTitle, mode):
     elif (cfg.get('source','format') == "txt"):
         ret = txt_file.parseTxt(file,tmpl)
 
-    artist = html.unescape(str(ret[0]))
-    title  = html.unescape(str(ret[1]))
+    artist = str_tools.formString(str(html.unescape(str(ret[0]))), int(artistForm)).strip()
+    title  = str_tools.formString(str(html.unescape(str(ret[1]))), int(titleForm)).strip()
     cover  = html.unescape(str(ret[2]))
+
+    if(artist == lastArtist and title == lastTitle):
+        str_tools.printMsg("ATC ", "SLS/DLS already generated, passing...")
+        return artist, title
 
     # Filters management for artist tag
     filterFound = False
@@ -123,9 +143,31 @@ def generate(cfg, lastArtist, lastTitle, mode):
     except json.decoder.JSONDecodeError as ex:
         str_tools.printMsg("ATC ", "No filters defined for title tag (bad format or empty), ignoring...")
 
+    # Find the cover on CoverPy
+    coverPyEnabled = "0"
+    coverPyFound = False
+
+    try:
+        coverPyEnabled = cfg.get('source', 'researchCover')
+    except:
+        pass
+
+    if not cover and coverPyEnabled == "1":
+        cpy = coverpy.CoverPy()
+        try:
+            str_tools.printMsg ("ATC ", "No cover URL provided, using CoverPy to find one cover...")
+            result = cpy.get_cover(artist + " - " + title, 1)
+            cover = result.artwork(300)
+            coverPyFound = True
+            str_tools.printMsg ("ATC ", "Cover found using CoverPy : " + cover)
+        except coverpy.exceptions.NoResultsException:
+            str_tools.printMsg ("ATC ", "No cover found using CoverPy")
+        except:
+            str_tools.printMsg ("ATC ", "Error with CoverPy")
+
     # Put default cover when no cover image provided (eg. logo of the radio station)
-    if not cover or filterFound == True:
-        str_tools.printMsg ("ATC ", "Putting default cover as no URL has been provided")
+    if (not cover and coverPyFound == False) or filterFound == True:
+        str_tools.printMsg ("ATC ", "Putting default cover as no URL has been provided or if a filter has been found")
         try:
             cover = cfg.get('source','defaultCover')
         except configparser.NoOptionError as error:
@@ -172,24 +214,8 @@ def generate(cfg, lastArtist, lastTitle, mode):
             lenTitle     = len(str(title))
             lenRadioName = len(radioName)
 
-            # Parsing formalisms for $artist and $title tags
-            artistForm = 0
-            titleForm = 0
-            try:
-                artistForm = cfg.get('general','artistForm')
-                if(artistForm == ""): 
-                    artistForm = 0
-            except:
-                artistForm = 0
-            try:
-                titleForm = cfg.get('general','titleForm')
-                if(titleForm == ""): 
-                    titleForm = 0
-            except:
-                titleForm = 0
-
-            contentDls = contentDls.replace("$artist", str_tools.formString(str(artist), int(artistForm)).strip())
-            contentDls = contentDls.replace("$title", str_tools.formString(str(title), int(titleForm)).strip())
+            contentDls = contentDls.replace("$artist", artist)
+            contentDls = contentDls.replace("$title", title)
             contentDls = contentDls.replace("$radioName", radioName)
             contentDls = contentDls.replace("$slogan", slogan)
 

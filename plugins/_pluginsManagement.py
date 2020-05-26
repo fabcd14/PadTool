@@ -26,59 +26,120 @@ from plugins import templateLogo
 
 # Import other Plugins
 try:
-    from plugins import _hourlyPluginsManagement
-    from plugins import _halfHourPluginsManagement
+    from plugins import _pluginsManagement1h
+    from plugins import _pluginsManagement30min
+    from plugins import _pluginsManagement15min
+    from plugins import _pluginsManagement10min
+    from plugins import _pluginsManagement5min
 except:
     pass
 
 def initPlugins(pathCfg, cfg, mode, timer):
     title = None
-    artist = None
+    artist = None  
 
+    # Server Mode
+    # TODO: Not implented yet :(
+    if(mode == "server"):
+        print("TODO: Not implented yet :(")
+    
     # Standalone Mode Management
     if(mode == "standalone"):
         if(cfg.get('slides', 'logo') == "1"):
             templateLogo.generate(cfg)
-        time.sleep(2)     
+        time.sleep(2)   
 
-    # Server Mode
-    # TODO: Not implented yet :(
-    
     # Regular execution
     totalTime = 0
-    hourResetTriggered = False
+
+    triggerHour = True
+    triggerQuarterHour = True
+    triggerHalfHour = True
+    triggerTenMin = True
+    triggerFiveMin = True
+
     while True:
         # DAB-CTL mode (regenerating logo each time)
         if(mode == "dabctl"):
             if(cfg.get('slides', 'logo') == "1"):
                 templateLogo.generate(cfg)
-            _hourlyPluginsManagement.generate( os.path.abspath(pathCfg) )
-            _halfHourPluginsManagement.generate( os.path.abspath(pathCfg) )
+            _pluginsManagement1h.generate( os.path.abspath(pathCfg) )
+            _pluginsManagement30min.generate( os.path.abspath(pathCfg) )
 
         # Generating artist/title/cover slide (with DLS+ if selected)
         if(cfg.get('slides', 'music') == "1"):
             artist, title = templateATC.generate(cfg, artist, title, mode)
 
-        if(totalTime == 0 or totalTime >= 3600):
-            try:
-                _hourlyPluginsManagement.generate( os.path.abspath(pathCfg) )
-            except:
-                pass
-        if(totalTime == 0 or (totalTime >= 1800 and totalTime <= (int(timer) + 7))):
-            try:
-                _halfHourPluginsManagement.generate( os.path.abspath(pathCfg) )
-            except:
-                pass
+        # Timer reset at 0 when we get to an a new hour / Trigger 1 hour
+        if(datetime.datetime.now().minute == 0 and datetime.datetime.now().second <= int(timer) and triggerHour == False): 
+            totalTime = 0
+            triggerHour = True
+        if(datetime.datetime.now().minute != 0):
+            triggerHour = False
 
-        totalTime = totalTime + int(timer) + 5
+        # Trigger 30min
+        if(datetime.datetime.now().minute == 30 and datetime.datetime.now().second <= int(timer) and triggerHalfHour == False): 
+            triggerHalfHour = True
+        if(datetime.datetime.now().minute != 30):
+            triggerHalfHour = False
+
+        # Trigger 15min
+        if(datetime.datetime.now().minute % 15 == 0 and datetime.datetime.now().second <= int(timer) and triggerQuarterHour == False): 
+            triggerQuarterHour = True
+        if(datetime.datetime.now().minute % 15 != 0):
+            triggerQuarterHour = False
+
+        # Trigger 10min
+        if(datetime.datetime.now().minute % 10 == 0 and datetime.datetime.now().second <= int(timer) and triggerTenMin == False): 
+            triggerTenMin = True
+        if(datetime.datetime.now().minute % 10 != 0):
+            triggerTenMin = False
+
+        # Trigger 5min
+        if(datetime.datetime.now().minute % 5 == 0 and datetime.datetime.now().second <= int(timer) and triggerFiveMin == False): 
+            triggerFiveMin = True
+        if(datetime.datetime.now().minute % 5 != 0):
+            triggerFiveMin = False
+
+        if(totalTime == 0 or triggerHour == True):
+            triggerHour = False
+            try:
+                # print("Trigger hour")
+                _pluginsManagement1h.generate( os.path.abspath(pathCfg) )
+                _pluginsManagement30min.generate( os.path.abspath(pathCfg) )
+            except:
+                pass
+        if(totalTime == 0 or triggerHalfHour == True):
+            triggerHalfHour = False
+            try:
+                # print("Trigger half hour")
+                _pluginsManagement30min.generate( os.path.abspath(pathCfg) )
+            except:
+                pass
+        if(totalTime == 0 or triggerQuarterHour == True):
+            triggerQuarterHour = False
+            try:
+                # print("Trigger quarter hour")
+                _pluginsManagement15min.generate( os.path.abspath(pathCfg) )
+            except:
+                pass
+        if(totalTime == 0 or triggerTenMin == True):
+            triggerTenMin = False
+            try:
+                # print("Trigger ten minutes")
+                _pluginsManagement10min.generate( os.path.abspath(pathCfg) )
+            except:
+                pass
+        if(totalTime == 0 or triggerFiveMin == True):
+            triggerFiveMin = False
+            try:
+                # print("Trigger five minutes")
+                _pluginsManagement5min.generate( os.path.abspath(pathCfg) )
+            except:
+                pass  
+    
+        totalTime = totalTime + int(timer)
         if(totalTime >= 3600):
             totalTime = 1
-        
-        # Timer reset at 0 when we get to an a new hour
-        if(datetime.datetime.now().minute == 0 and hourResetTriggered == False): 
-            totalTime = 0
-            hourResetTriggered = True
-        if(datetime.datetime.now().minute != 0):
-            hourResetTriggered = False
         
         time.sleep(int(timer))

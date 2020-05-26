@@ -2,6 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8">
+        <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro&display=swap" rel="stylesheet">
         <style>
             body {
                 background-color: $color2;
@@ -10,6 +11,20 @@
                 height:240px;
 				margin:0px;
             }
+
+            body::after {
+                content: "";
+                background: url($backurl);
+                background-position:bottom;
+                opacity: 0.3;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                right: 0;
+                position: absolute;
+                z-index: -1;
+            }
+
             #logo
             {
                 margin-left:251px;
@@ -40,6 +55,7 @@
                 font-size:16px;
                 color:white;
             }
+            
 			p
 			{
 				text-transform: uppercase;
