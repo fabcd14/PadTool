@@ -5,7 +5,7 @@ Required dependencies
 =====================
 * Python 3+, PadTool is not compatible with Python 2 instances
 * PIP3 in order to install dependencies
-* Chrome Driver with Chrome/Chromium
+* Chrome Driver with Chrome/Chromium (ensure to have the same version of these two softwares)
 * Pillow PIL fork lib
 * Selenium lib
 * ImgKit lib
