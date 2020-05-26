@@ -60,6 +60,7 @@ def searchForJson(expr, d, parent=[], level=0):
                         parent, level, found = searchForJson(expr, v, parent, level)
                         if (found == 1):
                             return parent, level, found
+                        parent.pop(len(parent)-1)
                     else:
                         if (v == expr):
                             if(d.count != 1):
