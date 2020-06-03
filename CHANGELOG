@@ -11,7 +11,6 @@ This file contains information about the changes done to PadTool in this reposit
 		in the DAB-CTL software (subchannel menu edition).
 		- Faster image processing time within ChromeDriver, the wait times used for PhantomJS 
 		are not useful anymore with ChromeDriver.
-		- Logo slide: a gradient could be now used for the background
 
 2020-05-26: Fabien Cuny
 	(v0.9.4):
