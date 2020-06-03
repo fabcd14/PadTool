@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with PadTool.  If not, see <http://www.gnu.org/licenses/>.
 
-version = "v0.9.4"
+version = "v0.9.5"
 
 # Import system libraries
 
@@ -32,6 +32,7 @@ import sys
 import getopt
 import os
 import threading
+import shutil
 
 from urllib.request import *
 
@@ -40,10 +41,12 @@ from plugins import _pluginsManagement
 
 def header():
     print ("PadTool " + version + " - MOT SLS and DLS generator for PAD encoder")
-    print (" By Fabien Cuny (fabcd14) - DAB Radio Normandie")
+    print (" By Fabien Cuny (fabcd14) - r+d.io - DAB Radio Normandie")
     print (" ")
     print (" Reads json / xml / txt / html data from a specific file, and outputs DLS+ text")
     print (" from these informations and generates SLS with personnalized templates")
+    print (" ")
+    print (" https://www.rplusd.io/")
     print (" https://github.com/fabcd14")
     print (" ")
     print ("-------------------------------------------------------------------------------")
@@ -98,18 +101,29 @@ def main(argv):
             sys.exit(2)
     elif (mode == 'server'):
         print ("Server mode, not implemented yet :(")
-    elif (mode == 'dabctl'):
+    elif (mode == 'dabctl' and platform.system() == "Linux"):
         print ("DAB-CTL mode, timer period overriden to: 15s")
         timer = 15
+
+        # Temporary directory where the slides will be generated to be used within DAB-CTL
+        try:
+            os.mkdir("/tmp/PadTool-" + str(os.getpid()))
+        except Exception as ex:
+            print("Unable to create temporary directory in '/tmp'. Please check directory rights and restart PadTool")
+            sys.exit(2)
+
     else:
-        print("Parameter 'mode' not recognized. Only the options 'standalone', 'server' or 'dabctl' are supported")
+        print("Parameter 'mode' not recognized. Only the options 'standalone', 'server' or 'dabctl' under Linux are supported")
         sys.exit(2)
 
     # For Proxy
-    if (cfg.get('proxy', 'enabled') == "1"):   
-        proxy_handler = ProxyHandler({'http': cfg.get('proxy', 'http'), 'https': cfg.get('proxy', 'https')})
-        opener = build_opener(proxy_handler)
-        install_opener(opener)
+    try:
+        if (cfg.get('proxy', 'enabled') == "1"):   
+            proxy_handler = ProxyHandler({'http': cfg.get('proxy', 'http'), 'https': cfg.get('proxy', 'https')})
+            opener = build_opener(proxy_handler)
+            install_opener(opener)
+    except:
+        pass # No proxy
 
     # Generate slides with logo first if enabled
     try:
@@ -124,6 +138,13 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print('Ctrl+C received : PadTool exits...')
         try:
+            # Deletion of the temporary ddirectory if in dabctl mode
+            try: 
+                if (os.path.isdir("/tmp/PadTool-" + str(os.getpid()))):
+                    shutil.rmtree("/tmp/PadTool-" + str(os.getpid()))
+            except Exception as ex:
+                print(ex)
+                print("Unable to remove temporary directory in '/tmp/PadTool-" + str(os.getpid()) + "'. Please check directory rights and restart PadTool")
             sys.exit(0)
             driver = None
         except SystemExit:

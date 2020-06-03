@@ -1,5 +1,18 @@
 This file contains information about the changes done to PadTool in this repository
 
+2020-06-03: Fabien Cuny
+	(v0.9.5):
+		- Improved JSON parsing algorithm
+		- Plugins integration bugfix
+		- Possible to add gradient background to logo slide
+		- DAB-CTL from V.Demarque (BCE) integration completely reworked. Works with DAB-CTL from
+		version 4.0.11 for Logo, ATC slides, and plugin generated slides.
+		To do so, please use the 'dabctl' mode, and allow "External Control" mode of DLS and SLS 
+		in the DAB-CTL software (subchannel menu edition).
+		- Faster image processing time within ChromeDriver, the wait times used for PhantomJS 
+		are not useful anymore with ChromeDriver.
+		- Logo slide: a gradient could be now used for the background
+
 2020-05-26: Fabien Cuny
 	(v0.9.4):
 		- Automatic research for a cover, if not defined, can be enabled via the 

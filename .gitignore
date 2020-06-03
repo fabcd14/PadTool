@@ -167,3 +167,5 @@ examples-template/template-ouesttrack.json
 config-frinfo.ini
 config-rb.ini
 config-otr.ini
+themes/kif.html
+examples-template/template-kif.json

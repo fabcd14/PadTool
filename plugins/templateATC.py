@@ -1,4 +1,21 @@
 #!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+# Copyright (C) 2020
+# Fabien Cuny, fabien.cuny7 at orange.fr
+# http://www.github.com/fabcd14/PadTool
+
+# This file is part of PadTool.
+# PadTool is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+# PadTool is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# You should have received a copy of the GNU General Public License
+# along with PadTool.  If not, see <http://www.gnu.org/licenses/>.
 
 from urllib import *
 from urllib.request import *
@@ -105,6 +122,16 @@ def generate(cfg, lastArtist, lastTitle, mode):
             if (str(fart) == artist):
                 filterFound = True
                 str_tools.printMsg ("ATC ", "Filter '" + str(fart) +"' found in artist tag")
+
+            if(mode == "dabctl"):
+                try:
+                    tmpPath = "/tmp/PadTool-" + os.getpid()
+                    if(os.path.isfile(tmpPath + "/music.jpg")):
+                        str_tools.printMsg ("ATC " ,"Slide exists, deleting slide...")
+                        os.remove(tmpPath + "/music.jpg")
+                except:
+                    str_tools.printMsg ("ATC ", "Slide removal error : " + str(ex))
+            else:
                 if(os.path.isfile(outFolder + "/music.jpg")):
                     os.remove(outFolder + "/music.jpg")
                     str_tools.printMsg ("ATC ", "SLS exists, deleting slide...")
@@ -255,7 +282,13 @@ def generate(cfg, lastArtist, lastTitle, mode):
                     outDls = cfg.get('dls', 'outFile') 
             except:
                 pass
-            f = open(outDls, 'w')
+            f = ""
+
+            if(mode == "dabctl"):
+                f = open("/tmp/PadTool-" + str(os.getpid()) + "/dls.txt", "w")
+            else:
+                f = open(outDls, 'w')
+
             if(dlsPlusEnabled == "1"):   
                 f.write(dlPlus + "\n" + contentDls)
             else:
@@ -309,15 +342,20 @@ def generate(cfg, lastArtist, lastTitle, mode):
         cover = cfg.get('source','defaultCover')
     content = content.replace("$cover", cover)
 
-    try:     
-        img_file.generateImg(content, outFolder + "/music")
-        str_tools.printMsg ("ATC ", "Slide generated at : '" + outFolder + "/music.jpg'")
+    try: 
+        if(mode == "dabctl"):
+            img_file.generateImg(content, "/tmp/PadTool-" + str(os.getpid()) + "/music")
+            str_tools.printMsg ("ATC ", "Slide generated at : '" + "/tmp/PadTool-" + str(os.getpid()) + "/music.jpg' and will be copied to '" + outFolder + "/music.jpg'")
+        else:
+            img_file.generateImg(content, outFolder + "/music")
+            str_tools.printMsg ("ATC ", "Slide generated at : '" + outFolder + "/music.jpg'")
     except Exception as ex:
         str_tools.printMsg ("ATC ", "Slide generation error : " + str(ex))
     
     # Create file REQUEST_SLIDES_DIR_REREAD
-    f = open(outFolder + '/REQUEST_SLIDES_DIR_REREAD', 'w' )
-    f.write("")
-    f.close()  
+    if(mode != "dabctl"):
+        f = open(outFolder + '/REQUEST_SLIDES_DIR_REREAD', 'w' )
+        f.write("")
+        f.close()  
 
     return artist, title

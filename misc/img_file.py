@@ -63,7 +63,7 @@ def generateImg(content, filename):
 
     driver.get("data:text/html;charset=utf-8;base64," + encodedStr)
     
-    time.sleep(1)
+    # time.sleep(1)
 
     png = driver.get_screenshot_as_png()
 

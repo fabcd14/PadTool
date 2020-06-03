@@ -52,6 +52,7 @@ def searchForJson(expr, d, parent=[], level=0):
                 parent, level, found = searchForJson(expr, item, parent, level)
                 if (found == 1):
                     return parent, level, found
+                parent.pop(len(parent)-1)
             else:
                 for k, v in item.items():
                     if(isinstance(v, dict)):

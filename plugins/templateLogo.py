@@ -19,6 +19,7 @@
 from urllib import *
 from urllib.request import *
 import io
+import os
 import imgkit
 import platform
 
@@ -30,6 +31,7 @@ def generate(cfg):
     try:
         logo = cfg.get('general', 'logoUrl')
         colorl = cfg.get('general', 'colorl')
+        mode = cfg.get('general', 'mode')
         outFolder = cfg.get('general', 'outFolder')
     except configparser.NoOptionError as error:
         str_tools.printMsg("Logo", "Mandatory parameter is missing : " + str(error))
@@ -42,7 +44,7 @@ def generate(cfg):
         <html>
             <head>
                 <style type="text/css">
-                    body { margin:auto; background-color:$colorl; }
+                    body { margin:auto; background-color:$colorl; background:$colorl;}
                     .conteneur{ width: 315px; height: 235px; text-align: center; display: table-cell; vertical-align: middle; }
                     img { max-width: 300px; max-height: 220px; }
                 </style>
@@ -56,7 +58,11 @@ def generate(cfg):
     content = content.replace("$colorl", colorl)
 
     try: 
-        img_file.generateImg(content, outFolder + "/logo")
-        str_tools.printMsg ("Logo", "Slide generated at : '" + outFolder + "/logo.jpg'")
+        if(mode == "dabctl"):
+            img_file.generateImg(content, "/tmp/PadTool-" + str(os.getpid()) + "/logo")
+            str_tools.printMsg ("Logo", "Slide generated at : '" + "/tmp/PadTool-" + str(os.getpid()) + "/logo.jpg' and will be copied to '" + outFolder + "/logo.jpg'")
+        else:
+            img_file.generateImg(content, outFolder + "/logo")
+            str_tools.printMsg ("Logo", "Slide generated at : '" + outFolder + "/logo.jpg'")
     except Exception as ex:
         str_tools.printMsg ("Logo", "Slide generation error : " + str(ex))
