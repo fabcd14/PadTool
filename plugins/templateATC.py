@@ -260,7 +260,7 @@ def generate(cfg, lastArtist, lastTitle, mode):
             dlsPlusEnabled = "0"
             try:
                 # Parsing option in the config file if the DLS+ is enabled or not.
-                if(cfg.get('dls', 'dlsPlus') != ""):
+                if(cfg.get('dls', 'dlsPlus') != "" and mode != "dabctl-ext"):
                     dlsPlusEnabled = cfg.get('dls', 'dlsPlus')
             except:
                 dlsPlusEnabled = "0"
@@ -353,7 +353,7 @@ def generate(cfg, lastArtist, lastTitle, mode):
         str_tools.printMsg ("ATC ", "Slide generation error : " + str(ex))
     
     # Create file REQUEST_SLIDES_DIR_REREAD
-    if(mode != "dabctl"):
+    if(mode != "dabctl" or mode != "dabctl-ext"):
         f = open(outFolder + '/REQUEST_SLIDES_DIR_REREAD', 'w' )
         f.write("")
         f.close()  

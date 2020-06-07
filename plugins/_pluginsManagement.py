@@ -21,10 +21,15 @@ import os
 import datetime
 import glob
 import shutil
+import sys
+import requests
 
 # Import default Plugins
 from plugins import templateATC
 from plugins import templateLogo
+
+# Import misc
+from misc import str_tools
 
 # Import other Plugins
 try:
@@ -154,14 +159,17 @@ def initPlugins(pathCfg, cfg, mode, timer):
                 pass
 
         # DAB-CTL mode, call at first start when all slides are generated
-        if(mode == "dabctl" and totalTime == 0):
-            tempFolder = "/tmp/PadTool-" + str(os.getpid())
+        if((mode == "dabctl" or mode == 'dabctl-ext') and totalTime == 0):
             try:
                 outFolder = cfg.get('general', 'outFolder')
-                outFile = cfg.get('dls', 'outFile')
             except configparser.NoOptionError as error:
                 str_tools.printMsg("Ext ", "Mandatory parameter is missing : " + str(error))
                 sys.exit(2)
+
+            if(mode == 'dabctl'):
+                tempFolder = "/tmp/PadTool-" + str(os.getpid())
+            elif(mode == "dabctl-ext"):
+                tempFolder = outFolder
 
             try:
                 if(os.path.isdir(tempFolder)):
@@ -172,7 +180,7 @@ def initPlugins(pathCfg, cfg, mode, timer):
                 sys.exit(2)
 
         # DAB-CTL, call each time in loop
-        if(mode == "dabctl"):
+        if(mode == "dabctl" or mode == "dabctl-ext"):
             try:
                 if (len(listFilesDabCtlSls) != len(glob.glob(tempFolder + '/*.jpg'))):
                     listFilesDabCtlSls = [os.path.basename(x) for x in glob.glob(tempFolder + '/*.jpg')]
@@ -185,37 +193,48 @@ def initPlugins(pathCfg, cfg, mode, timer):
                 pass
 
             # Copy SLS
-            outFolderFilesCount = -1
-            timeoutCount = 0
-            while(outFolderFilesCount != 0): # Is the folder empty of jpgs ? If then, we push an image.
-                try:
-                    outFolderFilesCount = len(glob.glob(outFolder + '/*.jpg'))
-                    # print("SLS directory not empty, waiting...")
-                except:
-                    outFolderFilesCount = 0
-                    # print("SLS directory empty, copying...")
-                time.sleep(1)
-                timeoutCount = timeoutCount + 1
-                if(timeoutCount >= 30):
-                    # print("Timeout 30s !")
-                    outFolderFilesCount = 0
+            if(mode == "dabctl"):
+                outFolderFilesCount = -1
+                timeoutCount = 0
+                while(outFolderFilesCount != 0): # Is the folder empty of jpgs ? If then, we push an image.
+                    try:
+                        outFolderFilesCount = len(glob.glob(outFolder + '/*.jpg'))
+                        # print("SLS directory not empty, waiting...")
+                    except:
+                        outFolderFilesCount = 0
+                        # print("SLS directory empty, copying...")
+                    time.sleep(1)
+                    timeoutCount = timeoutCount + 1
+                    if(timeoutCount >= 30):
+                        # print("Timeout 30s !")
+                        outFolderFilesCount = 0
 
             try:
                 if(len(listFilesDabCtlSls) > 0):
                     # print ("Copy SLS index " + str(indexSlsDabCtlLoop) + " on " + str(len(listFilesDabCtlSls)))
-                    shutil.copyfile(tempFolder + '/' + listFilesDabCtlSls[indexSlsDabCtlLoop], outFolder + '/' + os.path.basename(listFilesDabCtlSls[indexSlsDabCtlLoop]))
+                    if(mode == "dabctl"):
+                        shutil.copyfile(tempFolder + '/' + listFilesDabCtlSls[indexSlsDabCtlLoop], outFolder + '/' + os.path.basename(listFilesDabCtlSls[indexSlsDabCtlLoop]))
+                    elif(mode == "dabctl-ext"):
+                        dabctlExtSend(cfg, "SLS", outFolder + '/' + os.path.basename(listFilesDabCtlSls[indexSlsDabCtlLoop]))
             except Exception as ex:
                 pass
-            #     print (ex)
 
             # Copy DLS
             try:
                 if(len(listFilesDabCtlDls) > 0):
                     # print ("Copy DLS index " + str(indexDlsDabCtlLoop) + " on " + str(len(listFilesDabCtlDls)))
-                    shutil.copyfile(tempFolder + '/' + listFilesDabCtlDls[indexDlsDabCtlLoop], outFile)
+                    if(mode == "dabctl"):
+                        try:
+                            outFile = cfg.get('dls', 'outFile')
+                        except:
+                            str_tools.printMsg("Ext ", "Mandatory parameter is missing : " + str(error))
+                            sys.exit(2)
+                        
+                        shutil.copyfile(tempFolder + '/' + listFilesDabCtlDls[indexDlsDabCtlLoop], outFile)
+                    elif(mode == "dabctl-ext"):
+                        dabctlExtSend(cfg, "DLS", outFolder + '/' + os.path.basename(listFilesDabCtlDls[indexDlsDabCtlLoop]))
             except Exception as ex:
                 pass
-            #     print (ex)
 
             indexSlsDabCtlLoop = indexSlsDabCtlLoop + 1
             indexDlsDabCtlLoop = indexDlsDabCtlLoop + 1
@@ -229,3 +248,27 @@ def initPlugins(pathCfg, cfg, mode, timer):
         if(totalTime >= 3600):
             totalTime = 1
         time.sleep(int(timer))
+
+def dabctlExtSend(cfg, mode, fileToSend):
+    hostname = cfg.get('dabctl-ext', 'hostname')
+    port = cfg.get('dabctl-ext', 'port')
+    pi = cfg.get('dabctl-ext', 'pi')
+    try:
+        passkey = cfg.get('dabctl-ext', 'passkey')
+    except:
+        passkey = ""
+    
+    url = "http://" + hostname + ":" + str(port) + "/_ext"
+    try:
+        if(mode == "DLS"):
+            dls = ""
+            with open(fileToSend,'r') as f:
+                dls = f.read()
+            args = {'PI': pi, 'key': passkey, 'variable': 'DLS', 'value': dls}
+            ret = requests.post(url, data = args)
+        elif(mode == "SLS"):
+            args = {'PI': pi, 'key': passkey, 'variable': 'SLS'}
+            files = {'file': open(fileToSend, 'rb')}
+            ret = requests.post(url, data = args, files = files)
+    except Exception as ex:
+        str_tools.printMsg("Ext ", "Error requesting DAB-CTL Server : " + ex)

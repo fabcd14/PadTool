@@ -26,6 +26,11 @@ import base64
 import sys
 
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.by import By
+
 from PIL import Image
 
 from misc import str_tools
@@ -54,6 +59,7 @@ def driverInit():
     return driver
 
 def generateImg(content, filename):
+    startTime = int(round(time.time() * 1000))
     driver = driverInit()
     driver.get("about:blank")
     driver.delete_all_cookies()
@@ -63,7 +69,11 @@ def generateImg(content, filename):
 
     driver.get("data:text/html;charset=utf-8;base64," + encodedStr)
     
-    # time.sleep(1)
+    delay = 4
+    try:
+        waitLoading = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+    except TimeoutException:
+        str_tools.printMsg ("Wdv ", "Timeout on slide generation")
 
     png = driver.get_screenshot_as_png()
 

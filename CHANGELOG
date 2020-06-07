@@ -1,5 +1,22 @@
 This file contains information about the changes done to PadTool in this repository
 
+2020-06-07: Fabien Cuny
+	(v0.9.6):
+		- DAB-CTL from V.Demarque (BCE) additional integration via _ext. To use this mode,
+		please enable webserver in the DAB-CTL configuration and and allow "External 
+		Control" mode of DLS and SLS. Use 'mode = dabctl-ext' in the PadTool config file.
+		Complete your config file with this section relative to DAB-CTL:
+			[dabctl-ext]
+			hostname = 127.0.0.1 	# DAB-CTL instance DNS or IP
+			port = 8080				# Port of the DAB-CTL external webserver
+			pi = FFB8				# PI subchannel defined in your DAB-CTL configuration
+			passkey = 1234			# Eventually, the passkey you defined in DAB-CTL
+		This mode is useful if PadTool is not run on the same system as the multiplexer
+		(for eg. ODR-DabMux). Please note that this mode is not compatible with DLS+.
+		- Fixed regression following several trials: managed timeout to image generation, 
+		provided by the WebDriver.
+		- Preparative work for Server Mode implementation.
+
 2020-06-03: Fabien Cuny
 	(v0.9.5):
 		- Improved JSON parsing algorithm
@@ -11,7 +28,6 @@ This file contains information about the changes done to PadTool in this reposit
 		in the DAB-CTL software (subchannel menu edition).
 		- Faster image processing time within ChromeDriver, the wait times used for PhantomJS 
 		are not useful anymore with ChromeDriver.
-		- Logo slide: a gradient could be now used for the background
 
 2020-05-26: Fabien Cuny
 	(v0.9.4):

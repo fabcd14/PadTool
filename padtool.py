@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with PadTool.  If not, see <http://www.gnu.org/licenses/>.
 
-version = "v0.9.5"
+version = "v0.9.6"
 
 # Import system libraries
 
@@ -49,7 +49,23 @@ def header():
     print (" https://www.rplusd.io/")
     print (" https://github.com/fabcd14")
     print (" ")
-    print ("-------------------------------------------------------------------------------")
+    print ("                                                                                ")
+    print ("   IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII                                       ")
+    print ("   IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII  II   I                            I      ")
+    print ("   IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII  II   I                            I      ")
+    print ("   IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII  II   I                            I      ")
+    print ("   IIIII      IIIIII     IIIIII        II  IIII     IIIIII     IIIIII    I      ")
+    print ("   IIII  IIII  III   III   II   IIII   II   I      I      I   I      I   I      ")
+    print ("   III  IIIIII  I  IIIIII  II  IIIIII  II   I     I        I I        I  I      ")
+    print ("   III  IIIIII  I  IIIIII  II  IIIIII  II   I     I        I I        I  I      ")
+    print ("   III   IIII   II  IIIII  II  IIIII  III   I     II      II II      II  I      ")
+    print ("   III        IIIII        III       IIII    II     IIIIII     IIIIII    II     ")
+    print ("   III  IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII                                       ")
+    print ("   III  IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII                                       ")
+    print ("   III  IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII                                       ")
+    print ("   IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII                                       ")
+    print ("                                                                                ")
+    print ("--------------------------------------------------------------------------------")
     print (" ")
 
 def main(argv):
@@ -83,37 +99,50 @@ def main(argv):
     # Config file parsing
     cfg = configparser.ConfigParser()
     cfg.read(inputFile, encoding='utf-8')
+    
     try:
         mode = cfg.get('general', 'mode')
         outFolder = cfg.get('general', 'outFolder')
         radioName = cfg.get('general', 'radioName')
         slogan = cfg.get('general', 'slogan')
+        timer = cfg.get('general', 'timer')
     except configparser.NoOptionError as error:
         print("Mandatory parameter is missing : " + str(error))
         sys.exit(2)
 
     if (mode == 'standalone'):
         try:
-            timer = cfg.get('general', 'timer')
             print ("Standalone Mode, timer period set to: " + timer + "s")
         except configparser.NoOptionError as error:
             print("Mandatory parameter is missing: " + str(error))
             sys.exit(2)
     elif (mode == 'server'):
         print ("Server mode, not implemented yet :(")
-    elif (mode == 'dabctl' and platform.system() == "Linux"):
-        print ("DAB-CTL mode, timer period overriden to: 15s")
+    elif ((mode == 'dabctl' or mode == 'dabctl-ext') and platform.system() == "Linux"):
         timer = 15
+        if (mode == 'dabctl'):
+            print ("DAB-CTL mode, timer period overriden to: 15s")
+        elif (mode == 'dabctl-ext'):
+            print ("DAB-CTL External HTTP mode, timer period overriden to: 15s")
 
-        # Temporary directory where the slides will be generated to be used within DAB-CTL
-        try:
-            os.mkdir("/tmp/PadTool-" + str(os.getpid()))
-        except Exception as ex:
-            print("Unable to create temporary directory in '/tmp'. Please check directory rights and restart PadTool")
-            sys.exit(2)
+            try:
+                hostname = cfg.get('dabctl-ext', 'hostname')
+                port = cfg.get('dabctl-ext', 'port')
+                pi = cfg.get('dabctl-ext', 'pi')
+            except:
+                print("Mandatory parameter is missing: " + str(error))
+                sys.exit(2)
+
+        # Temporary directory where the slides will be generated to be used within DAB-CTL (not necessary with 'dabctl-ext')
+        if (mode == 'dabctl'):
+            try:
+                os.mkdir("/tmp/PadTool-" + str(os.getpid()))
+            except Exception as ex:
+                print("Unable to create temporary directory in '/tmp'. Please check directory rights and restart PadTool")
+                sys.exit(2)
 
     else:
-        print("Parameter 'mode' not recognized. Only the options 'standalone', 'server' or 'dabctl' under Linux are supported")
+        print("Parameter 'mode' not recognized. Only the options 'standalone', 'server', 'dabctl' (under Linux), 'dabctl-ext' (under Linux) are supported")
         sys.exit(2)
 
     # For Proxy
@@ -138,13 +167,6 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         print('Ctrl+C received : PadTool exits...')
         try:
-            # Deletion of the temporary ddirectory if in dabctl mode
-            try: 
-                if (os.path.isdir("/tmp/PadTool-" + str(os.getpid()))):
-                    shutil.rmtree("/tmp/PadTool-" + str(os.getpid()))
-            except Exception as ex:
-                print(ex)
-                print("Unable to remove temporary directory in '/tmp/PadTool-" + str(os.getpid()) + "'. Please check directory rights and restart PadTool")
             sys.exit(0)
             driver = None
         except SystemExit:
@@ -156,3 +178,12 @@ if __name__ == "__main__":
             sys.exit(0)
         except SystemExit:
             os._exit(0)
+    finally:
+        # Deletion of the temporary directory if in dabctl mode
+        if (cfg.get('general', 'mode') == "dabctl"):
+            try: 
+                if (os.path.isdir("/tmp/PadTool-" + str(os.getpid()))):
+                    shutil.rmtree("/tmp/PadTool-" + str(os.getpid()))
+            except Exception as ex:
+                print("Unable to remove temporary directory in '/tmp/PadTool-" + str(os.getpid()) + "'. Please check directory rights and restart PadTool")
+        
