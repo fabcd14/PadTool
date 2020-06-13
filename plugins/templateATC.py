@@ -37,7 +37,7 @@ from fileexts import txt_file
 from misc import img_file
 from misc import str_tools
 
-def generate(cfg, lastArtist, lastTitle, mode):
+def generate(cfg=None, lastArtist="", lastTitle="", mode="standalone", artistFromServer="", titleFromServer="", coverFromServer=""):
     # Avoid SSL errors
     ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -62,13 +62,14 @@ def generate(cfg, lastArtist, lastTitle, mode):
     # Checking connecion failures
     while True:
         try: 
-            file = urlopen(cfg.get('source', 'url')).read()
+            req = Request(cfg.get('source', 'url'), headers={'User-Agent': 'Mozilla/5.0'})
+            file = urlopen(req).read()
             cptFails = 0
             break
-        except: 
+        except Exception as ex: 
             cptFails = cptFails + 1
             if(cptFails < 5):
-                str_tools.printMsg("ATC ", "[" + str(cptFails) + "/5] Failed to open source file. Retrying in 10secs...")
+                str_tools.printMsg("ATC ", "[" + str(cptFails) + "/5] Failed to open source file ("+str(ex)+"). Retrying in 10secs...")
                 time.sleep(10)
             else:
                 str_tools.printMsg("ATC ", "[" + str(cptFails) + "/5] Failed 5 times to open source file. PadTool will exits...")
@@ -96,12 +97,15 @@ def generate(cfg, lastArtist, lastTitle, mode):
             tmpl = tmpl + line
 
     ret = []
-    if (cfg.get('source','format') == "json"):
-        ret = json_file.parseJson(file, tmpl)
-    elif (cfg.get('source','format') == "xml"):
-        ret = xml_file.parseXml(file,tmpl)
-    elif (cfg.get('source','format') == "txt"):
-        ret = txt_file.parseTxt(file,tmpl)
+    if(mode == "server"):
+        ret = [artistFromServer, titleFromServer, coverFromServer]
+    else:
+        if (cfg.get('source','format') == "json"):
+            ret = json_file.parseJson(file, tmpl)
+        elif (cfg.get('source','format') == "xml"):
+            ret = xml_file.parseXml(file,tmpl)
+        elif (cfg.get('source','format') == "txt"):
+            ret = txt_file.parseTxt(file,tmpl)
 
     artist = str_tools.formString(str(html.unescape(str(ret[0]))), int(artistForm)).strip()
     title  = str_tools.formString(str(html.unescape(str(ret[1]))), int(titleForm)).strip()
@@ -224,9 +228,9 @@ def generate(cfg, lastArtist, lastTitle, mode):
         content = f.read()
 
     if (cfg.get('dls','enabled') == "1"):
-        if((artist not in tempArtist and title not in tempTitle) or (artist == "" and title == "")):
+        if((artist not in tempArtist and title not in tempTitle) or (artist == "" or title == "")):
             str_tools.printMsg ("ATC ", "Generating DLS...")
-            if(filterFound == True or (artist == "" and title == "")):
+            if(filterFound == True or (artist == "" or title == "")):
                 try:
                     contentDls = cfg.get('dls', 'defaultDls')
                 except:
@@ -337,7 +341,9 @@ def generate(cfg, lastArtist, lastTitle, mode):
     content = content.replace("$backurl", backUrl)
     content = content.replace("$logo", logo)
     try:
-        respCover = urlopen(cover).getcode()
+        # respCover = urlopen(cover).getcode()
+        req = Request(cover, headers={'User-Agent': 'Mozilla/5.0'})
+        readCover = urlopen(req).read()
     except:
         cover = cfg.get('source','defaultCover')
     content = content.replace("$cover", cover)

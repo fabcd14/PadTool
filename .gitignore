@@ -169,3 +169,10 @@ config-rb.ini
 config-otr.ini
 themes/kif.html
 examples-template/template-kif.json
+examples-template/template-ouifmcr.json
+examples-template/template-cf.xml
+test.py
+test2.py
+misc/server copy.py
+config-cf.ini
+config-server.ini

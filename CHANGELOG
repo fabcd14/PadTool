@@ -1,5 +1,17 @@
 This file contains information about the changes done to PadTool in this repository
 
+2020-06-13: Fabien Cuny
+	(v0.9.7):
+		- Slight modification regarding default DLS sometimes not taken in account
+		- Added User-Agent for source and cover checkings (because some servers don't like
+		to be requested by scripts which are not browsers, and send 401 or 403 errors)
+		- Slight modification regarding Timeout slide generation (wait of the html parsing
+		implemented and added an <end></end> tag in the templates)
+		- JSON parsing modification and adjustments
+		- HTTP Server pre-work implementation in order to send artist title and cover URL via 
+		GET and POST requests, also compatible with Azuracast. To be completed in next 
+		releases.
+
 2020-06-07: Fabien Cuny
 	(v0.9.6):
 		- DAB-CTL from V.Demarque (BCE) additional integration via _ext. To use this mode,
@@ -7,10 +19,10 @@ This file contains information about the changes done to PadTool in this reposit
 		Control" mode of DLS and SLS. Use 'mode = dabctl-ext' in the PadTool config file.
 		Complete your config file with this section relative to DAB-CTL:
 			[dabctl-ext]
-			hostname = 127.0.0.1 	# DAB-CTL instance DNS or IP
-			port = 8080				# Port of the DAB-CTL external webserver
-			pi = FFB8				# PI subchannel defined in your DAB-CTL configuration
-			passkey = 1234			# Eventually, the passkey you defined in DAB-CTL
+			hostname = 127.0.0.1    # DAB-CTL instance DNS or IP
+			port = 8080             # Port of the DAB-CTL external webserver
+			pi = FFB8               # PI subchannel defined in your DAB-CTL configuration
+			passkey = 1234          # Eventually, the passkey you defined in DAB-CTL
 		This mode is useful if PadTool is not run on the same system as the multiplexer
 		(for eg. ODR-DabMux). Please note that this mode is not compatible with DLS+.
 		- Fixed regression following several trials: managed timeout to image generation, 

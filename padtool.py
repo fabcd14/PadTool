@@ -117,7 +117,7 @@ def main(argv):
             print("Mandatory parameter is missing: " + str(error))
             sys.exit(2)
     elif (mode == 'server'):
-        print ("Server mode, not implemented yet :(")
+        print ("Server mode")
     elif ((mode == 'dabctl' or mode == 'dabctl-ext') and platform.system() == "Linux"):
         timer = 15
         if (mode == 'dabctl'):
@@ -180,10 +180,13 @@ if __name__ == "__main__":
             os._exit(0)
     finally:
         # Deletion of the temporary directory if in dabctl mode
-        if (cfg.get('general', 'mode') == "dabctl"):
-            try: 
-                if (os.path.isdir("/tmp/PadTool-" + str(os.getpid()))):
-                    shutil.rmtree("/tmp/PadTool-" + str(os.getpid()))
-            except Exception as ex:
-                print("Unable to remove temporary directory in '/tmp/PadTool-" + str(os.getpid()) + "'. Please check directory rights and restart PadTool")
+        try:
+            if (cfg.get('general', 'mode') == "dabctl"):
+                try: 
+                    if (os.path.isdir("/tmp/PadTool-" + str(os.getpid()))):
+                        shutil.rmtree("/tmp/PadTool-" + str(os.getpid()))
+                except Exception as ex:
+                    print("Unable to remove temporary directory in '/tmp/PadTool-" + str(os.getpid()) + "'. Please check directory rights and restart PadTool")
+        except:
+            pass
         

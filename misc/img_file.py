@@ -59,7 +59,6 @@ def driverInit():
     return driver
 
 def generateImg(content, filename):
-    startTime = int(round(time.time() * 1000))
     driver = driverInit()
     driver.get("about:blank")
     driver.delete_all_cookies()
@@ -69,9 +68,9 @@ def generateImg(content, filename):
 
     driver.get("data:text/html;charset=utf-8;base64," + encodedStr)
     
-    delay = 4
+    delay = 5
     try:
-        waitLoading = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.TAG_NAME, 'body')))
+        waitLoading = WebDriverWait(driver, delay).until(EC.presence_of_element_located((By.TAG_NAME, 'end')))
     except TimeoutException:
         str_tools.printMsg ("Wdv ", "Timeout on slide generation")
 

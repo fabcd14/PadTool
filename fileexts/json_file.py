@@ -84,18 +84,21 @@ def getTagInCurJson(jsonTags, jsonDict):
 
     for i in range(len(jsonTags[0])):
         r0 = jsonTags[0][i]
-        if(i==0): #First
-            ret = jsonDict[r0]
-        elif (i == len(jsonTags[0]) - 1): #Last one
-            if(isinstance(ret, list)):
-                ret = ret[0][r0]
-            else:
-                ret = ret[r0]
-        else: #n index in middle
-            if(isinstance(ret, list)):
-                ret = ret[0][r0]
-            else:
-                ret = ret[r0]
+        try:
+            if(i==0): #First
+                ret = jsonDict[r0]
+            elif (i == len(jsonTags[0]) - 1): #Last one
+                if(isinstance(ret, list)):
+                    ret = ret[0][r0]
+                else:
+                    ret = ret[r0]
+            else: #n index in middle
+                if(isinstance(ret, list)):
+                    ret = ret[0][r0]
+                else:
+                    ret = ret[r0]
+        except:
+            pass
     return ret
 
 def parseJson(file,tmpl):
@@ -140,7 +143,8 @@ def parseJson(file,tmpl):
         artist = getTagInCurJson(searchForJson("$artist", jsonTemplate, []),jsonNF)
         title = getTagInCurJson(searchForJson("$title", jsonTemplate, []),jsonNF)
         cover = getTagInCurJson(searchForJson("$cover", jsonTemplate, []),jsonNF)
-    except:
+    except Exception as ex:
+        print("Json Parsing Error : " + str(ex))
         artist = ""
         title = ""
         cover = ""

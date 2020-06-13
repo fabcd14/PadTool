@@ -30,6 +30,7 @@ from plugins import templateLogo
 
 # Import misc
 from misc import str_tools
+from misc import server
 
 # Import other Plugins
 try:
@@ -58,12 +59,10 @@ def initPlugins(pathCfg, cfg, mode, timer):
     artist = None
 
     # Server Mode
-    # TODO: Not implented yet :(
     if(mode == "server"):
-        print("TODO: Not implented yet :(")
+        server.launchWebServer(cfg)
 
     # Standalone Mode Management
-    # if(mode == "standalone"):
     if(cfg.get('slides', 'logo') == "1"):
         templateLogo.generate(cfg)
     time.sleep(1)
@@ -83,9 +82,6 @@ def initPlugins(pathCfg, cfg, mode, timer):
     indexDlsDabCtlLoop = 0
 
     while True:
-        # if(cfg.get('slides', 'logo') == "1"):
-        #     templateLogo.generate(cfg)
-
         # Generating artist/title/cover slide (with DLS+ if selected)
         if(cfg.get('slides', 'music') == "1"):
             artist, title = templateATC.generate(cfg, artist, title, mode)

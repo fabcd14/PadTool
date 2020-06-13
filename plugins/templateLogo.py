@@ -51,6 +51,7 @@ def generate(cfg):
             </head>
             
             <body> <div class="conteneur"> <img src="$logo" /> </div> </body>
+            <end></end>
         </html>
     """
 
