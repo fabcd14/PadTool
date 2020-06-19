@@ -176,3 +176,6 @@ test2.py
 misc/server copy.py
 config-cf.ini
 config-server.ini
+config-ouifmcr.ini
+config-kif.ini
+c21_none.json

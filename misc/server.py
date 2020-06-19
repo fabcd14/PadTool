@@ -2,13 +2,16 @@ from plugins import templateATC
 
 from urllib.parse import urlparse, parse_qs
 from io import BytesIO
+from threading import Thread
 
 import html
 import http.server
 import json
 import base64
 import os
-import cgi
+#import cgi
+import glob
+from misc import indexPage
 
 class CustomServerHandler(http.server.BaseHTTPRequestHandler):
     def _set_headers(self):
@@ -41,7 +44,7 @@ class CustomServerHandler(http.server.BaseHTTPRequestHandler):
         elif(self.headers.get('Authorization') == 'Basic ' + str(key)):
             query = urlparse(self.path).query
             try:
-                if(self.path.startswith("/atc")):
+                if(self.path.startswith("/atc") and cfg.get('general', 'mode') == "server"):
                     self._set_headers()
                     try:
                         artist = ""
@@ -88,8 +91,44 @@ class CustomServerHandler(http.server.BaseHTTPRequestHandler):
                             d2.update({k:v},)
                         d.update({sect:d2})
                     self.wfile.write(bytes(json.dumps(d), 'utf-8'))
-                elif(self.path.startswith("/slide/atc")):
-                    pathToImg = cfg.get('general', 'outFolder') + "/music.jpg"
+                elif(self.path.startswith("/slide/sls")):
+                    self._set_headers()
+                    outFolder = cfg.get('general', 'outFolder')
+                    listFilesDabCtlSls = [os.path.basename(x) for x in glob.glob(outFolder + '/*.jpg')]
+                    self.wfile.write(bytes(json.dumps(listFilesDabCtlSls), 'utf-8'))
+                elif(self.path.startswith("/slide/dls")):
+                    self._set_headers()
+                    dictDls = dict()
+                    try:
+                        outFile = cfg.get('dls', 'outFile')
+                        f = open(outFile, "r")
+                        lastLine = f.readlines()[-1]
+                        baseFileName = os.path.basename(cfg.get('dls', 'outFile'))
+                        f.close()
+                        dictDls.update({baseFileName:lastLine})
+                        self.wfile.write(bytes(json.dumps(dictDls), 'utf-8'))
+                    except:
+                        if(cfg.get('general', 'mode') == "dabctl"):
+                            outFolder = "/tmp/PadTool-" + str(os.getpid())
+                        else:
+                            outFolder = cfg.get('general', 'outFolder')
+                        listFilesDabCtlDls = [os.path.basename(x) for x in glob.glob(outFolder + '/*.txt')]
+                        for curFile in listFilesDabCtlDls:
+                            f = open(outFolder + "/" + curFile, "r")
+                            lastLine = f.readlines()[-1]
+                            dictDls.update({curFile:lastLine})
+                            f.close()
+                        self.wfile.write(bytes(json.dumps(dictDls), 'utf-8'))
+                elif(self.path.startswith("/slide/")):
+                    path = self.path.replace("/slide/", "")
+                    if(cfg.get('general', 'mode') == "dabctl"):
+                        pathToImg = "/tmp/PadTool-" + str(os.getpid()) + "/" + path
+                    else:
+                        pathToImg = cfg.get('general', 'outFolder') + "/" + path
+                    try:
+                        pathToImg = pathToImg.split("?")[0]
+                    except:
+                        pass
                     f = open(pathToImg, 'rb')
                     self.send_response(200)
                     self.send_header("Content-type", "image/jpg")
@@ -97,15 +136,14 @@ class CustomServerHandler(http.server.BaseHTTPRequestHandler):
                     self.end_headers() 
                     self.wfile.write(f.read())
                     f.close()
-                elif(self.path.startswith("/slide/logo")):
-                    pathToImg = cfg.get('general', 'outFolder') + "/logo.jpg"
-                    f = open(pathToImg, 'rb')
+                elif(self.path == "/"):
                     self.send_response(200)
-                    self.send_header("Content-type", "image/jpg")
-                    self.send_header("Content-length", os.stat(pathToImg).st_size)
-                    self.end_headers() 
-                    self.wfile.write(f.read())
-                    f.close()
+                    self.send_header('Content-type', 'text/html')
+                    self.end_headers()
+                    idxP = indexPage.generate()
+                    idxP = idxP.replace("$radioName", cfg.get('general', 'radioName'))
+                    idxP = idxP.replace("$slogan", cfg.get('general', 'slogan'))
+                    self.wfile.write(bytes(idxP, 'utf-8'))
                 else:
                     raise Exception("Identifier not recognized")
 
@@ -142,7 +180,7 @@ class CustomServerHandler(http.server.BaseHTTPRequestHandler):
 
         elif(self.headers.get('Authorization') == 'Basic ' + str(key)):
             try:
-                if(self.path.startswith("/azuracast")):
+                if(self.path.startswith("/azuracast") and cfg.get('general', 'mode') == "server"):
                     self.send_response(200)
                     self.send_header('Content-type', 'text/html')
                     self.end_headers()
@@ -161,7 +199,7 @@ class CustomServerHandler(http.server.BaseHTTPRequestHandler):
                         'cover': cover
                     }
                     self.wfile.write(bytes(json.dumps(response), 'utf-8'))
-                else:
+                elif(cfg.get('general', 'mode') == "server"):
                     length = int(self.headers['Content-Length'])
                     post_data = parse_qs(self.rfile.read(length).decode('utf-8'))
                     post_data = json.dumps(post_data)
@@ -204,6 +242,8 @@ class CustomServerHandler(http.server.BaseHTTPRequestHandler):
                             self.wfile.write(bytes(json.dumps(response), 'utf-8'))
                     else:
                         raise Exception("Identifier not recognized")
+                else:
+                    raise Exception("Request received but actual mode is : " + cfg.get('general', 'mode'))
             except Exception as ex:
                 response = {
                     'success': False,
@@ -214,6 +254,9 @@ class CustomServerHandler(http.server.BaseHTTPRequestHandler):
 
     def do_PUT(self):
         self.do_POST()
+    
+    def log_message(self, format, *args):
+        return
 
 
 class CustomHTTPServer(http.server.HTTPServer):
@@ -236,11 +279,20 @@ class CustomHTTPServer(http.server.HTTPServer):
     def setCfg(self, cfg):
         self.cfg = cfg
 
-def launchWebServer(cfg):
+def launchWebServer(cfg, port, user, pwd):
     host = '0.0.0.0'
-    port = 9050
-
-    server = CustomHTTPServer((host, port))
-    server.set_auth('admin', 'padtool')
+    server = CustomHTTPServer(('0.0.0.0', int(port)))
+    server.set_auth(user, pwd)
     server.setCfg(cfg)
     server.serve_forever()
+
+class Server(Thread):
+    def __init__(self, cfg, port, user, pwd):
+        Thread.__init__(self)
+        self.cfg = cfg
+        self.port = port
+        self.user = user
+        self.pwd = pwd
+
+    def run(self):
+        launchWebServer(self.cfg, self.port, self.user, self.pwd)

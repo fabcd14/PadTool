@@ -91,12 +91,18 @@ def getTagInCurJson(jsonTags, jsonDict):
                 if(isinstance(ret, list)):
                     ret = ret[0][r0]
                 else:
-                    ret = ret[r0]
+                    try:
+                        ret = ret[r0]
+                    except:
+                        ret = ""
             else: #n index in middle
                 if(isinstance(ret, list)):
                     ret = ret[0][r0]
                 else:
-                    ret = ret[r0]
+                    try:
+                        ret = ret[r0]
+                    except:
+                        ret = ""
         except:
             pass
     return ret

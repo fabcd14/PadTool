@@ -58,9 +58,18 @@ def initPlugins(pathCfg, cfg, mode, timer):
     title = None
     artist = None
 
-    # Server Mode
-    if(mode == "server"):
-        server.launchWebServer(cfg)
+    # Server Mode (or server enabled)
+    try:
+        port = cfg.get("server", "port")
+        user = cfg.get("server", "user")
+        password = cfg.get("server", "password")
+
+        if(mode == "server" or port != ""):
+            webServer = server.Server(cfg, port, user, password)
+            webServer.start()
+        str_tools.printMsg("Web ", "PadTool HTTP Server enabled, listening on port " + str(port))
+    except:
+        pass
 
     # Standalone Mode Management
     if(cfg.get('slides', 'logo') == "1"):
@@ -82,8 +91,8 @@ def initPlugins(pathCfg, cfg, mode, timer):
     indexDlsDabCtlLoop = 0
 
     while True:
-        # Generating artist/title/cover slide (with DLS+ if selected)
-        if(cfg.get('slides', 'music') == "1"):
+        # Generating artist/title/cover slide (with DLS+ if selected) if mode is not "server"
+        if(cfg.get('slides', 'music') == "1" and mode != "server"):
             artist, title = templateATC.generate(cfg, artist, title, mode)
 
         # Timer reset at 0 when we get to an a new hour / Trigger 1 hour
@@ -259,7 +268,7 @@ def dabctlExtSend(cfg, mode, fileToSend):
         if(mode == "DLS"):
             dls = ""
             with open(fileToSend,'r') as f:
-                dls = f.read()
+                dls = f.readlines()[-1]
             args = {'PI': pi, 'key': passkey, 'variable': 'DLS', 'value': dls}
             ret = requests.post(url, data = args)
         elif(mode == "SLS"):

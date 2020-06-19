@@ -1,5 +1,11 @@
 This file contains information about the changes done to PadTool in this repository
 
+2020-06-19: Fabien Cuny
+	(v0.9.8):
+		- WebServer implementation done: GET, POST and AzuraCast modes implemented. Slides 
+		and DLS monitoring implemented (documentation will come with next releases).
+		- JSON parsing modification and adjustments.
+
 2020-06-13: Fabien Cuny
 	(v0.9.7):
 		- Slight modification regarding default DLS sometimes not taken in account
