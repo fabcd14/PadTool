@@ -32,10 +32,6 @@ def formString(s, typeForm = 0):
     elif(typeForm == 2):    # All UPPER
         return s.upper()
     elif(typeForm == 3):    # Only The First Letter Of Each Word Upper
-        s = s.lower()
-        r = ""
-        for t in s.split(' '):
-            r = r + t.title() + " "
-        return r
+        return ' '.join(elem.capitalize() for elem in s.split())
     else:
         return s

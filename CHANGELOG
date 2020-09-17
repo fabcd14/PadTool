@@ -1,5 +1,17 @@
 This file contains information about the changes done to PadTool in this repository
 
+2020-09-17: Fabien Cuny
+	(v1.0.0):
+		- Improved Logo slide generation : Better error handling when gathering the logo
+		- Improved mode 3 of artistForm and titleForm options for DLS(+)
+		- Bugfix : the DLS(+) could be now generated independently from generating ATC 
+		(artist/title/cover) slide
+		- Webserver : Crashes randomly, added a loop to rforce re-execution when it crashes.
+
+2020-07-30: Fabien Cuny
+	(v0.9.9):
+		- Improved JSON parsing algorithm	
+
 2020-06-19: Fabien Cuny
 	(v0.9.8):
 		- WebServer implementation done: GET, POST and AzuraCast modes implemented. Slides 

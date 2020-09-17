@@ -55,6 +55,10 @@ def generate(cfg=None, lastArtist="", lastTitle="", mode="standalone", artistFro
         str_tools.printMsg("ATC", "Mandatory parameter is missing : " + str(error))
         sys.exit(2)
 
+    # Local Vars
+    tempArtist = ""
+    tempTitle = ""
+
     # Opening Template
     file = "" 
     cptFails = 0 # Count connection failures, exits the app when not reached for 5 times.
@@ -174,58 +178,62 @@ def generate(cfg=None, lastArtist="", lastTitle="", mode="standalone", artistFro
     except json.decoder.JSONDecodeError as ex:
         str_tools.printMsg("ATC ", "No filters defined for title tag (bad format or empty), ignoring...")
 
-    # Find the cover on CoverPy
-    coverPyEnabled = "0"
-    coverPyFound = False
-
     try:
-        coverPyEnabled = cfg.get('source', 'researchCover')
-    except:
-        pass
+        if(cfg.get('slides', 'music') == "1"):
+            # Find the cover on CoverPy
+            coverPyEnabled = "0"
+            coverPyFound = False
 
-    if not cover and coverPyEnabled == "1":
-        cpy = coverpy.CoverPy()
-        try:
-            str_tools.printMsg ("ATC ", "No cover URL provided, using CoverPy to find one cover...")
-            result = cpy.get_cover(artist + " - " + title, 1)
-            cover = result.artwork(300)
-            coverPyFound = True
-            str_tools.printMsg ("ATC ", "Cover found using CoverPy : " + cover)
-        except coverpy.exceptions.NoResultsException:
-            str_tools.printMsg ("ATC ", "No cover found using CoverPy")
-        except:
-            str_tools.printMsg ("ATC ", "Error with CoverPy")
+            try:
+                coverPyEnabled = cfg.get('source', 'researchCover')
+            except:
+                pass
 
-    # Put default cover when no cover image provided (eg. logo of the radio station)
-    if (not cover and coverPyFound == False) or filterFound == True:
-        str_tools.printMsg ("ATC ", "Putting default cover as no URL has been provided or if a filter has been found")
-        try:
-            cover = cfg.get('source','defaultCover')
-        except configparser.NoOptionError as error:
-            str_tools.printMsg("ATC ", "Mandatory parameter is missing : " + str(error))
-            sys.exit(2)
-
-    tempArtist = str(lastArtist).replace("...", "")
-    tempTitle = str(lastTitle).replace("...", "")
-
-    # Some APIs do not use http or https prefix, add http:// when it's the case
-    if (len(cover) > 0):
-        if("http" not in cover):
-            cover = str(cfg.get('general', 'prefix')) + cover
-            if(filterFound == True or (artist == "" and title == "")):
+            if not cover and coverPyEnabled == "1":
+                cpy = coverpy.CoverPy()
                 try:
-                    contentDls = cfg.get('dls', 'defaultDls')
+                    str_tools.printMsg ("ATC ", "No cover URL provided, using CoverPy to find one cover...")
+                    result = cpy.get_cover(artist + " - " + title, 1)
+                    cover = result.artwork(300)
+                    coverPyFound = True
+                    str_tools.printMsg ("ATC ", "Cover found using CoverPy : " + cover)
+                except coverpy.exceptions.NoResultsException:
+                    str_tools.printMsg ("ATC ", "No cover found using CoverPy")
                 except:
-                    contentDls = "$radioName, $slogan"
-                if(os.path.isfile(outFolder + "/music.jpg")):
-                    os.remove(outFolder + "/music.jpg")
-            else:
-                contentDls = cfg.get('dls', 'text')
+                    str_tools.printMsg ("ATC ", "Error with CoverPy")
 
-    # Data masking replacement with correct values
-    content = ""
-    with io.open(theme + '.html', 'r', encoding="utf-8") as f:
-        content = f.read()
+            # Put default cover when no cover image provided (eg. logo of the radio station)
+            if (not cover and coverPyFound == False) or filterFound == True:
+                str_tools.printMsg ("ATC ", "Putting default cover as no URL has been provided or if a filter has been found")
+                try:
+                    cover = cfg.get('source','defaultCover')
+                except configparser.NoOptionError as error:
+                    str_tools.printMsg("ATC ", "Mandatory parameter is missing : " + str(error))
+                    sys.exit(2)
+
+            tempArtist = str(lastArtist).replace("...", "")
+            tempTitle = str(lastTitle).replace("...", "")
+
+            # Some APIs do not use http or https prefix, add http:// when it's the case
+            if (len(cover) > 0):
+                if("http" not in cover):
+                    cover = str(cfg.get('general', 'prefix')) + cover
+                    if(filterFound == True or (artist == "" and title == "")):
+                        try:
+                            contentDls = cfg.get('dls', 'defaultDls')
+                        except:
+                            contentDls = "$radioName, $slogan"
+                        if(os.path.isfile(outFolder + "/music.jpg")):
+                            os.remove(outFolder + "/music.jpg")
+                    else:
+                        contentDls = cfg.get('dls', 'text')
+
+            # Data masking replacement with correct values
+            content = ""
+            with io.open(theme + '.html', 'r', encoding="utf-8") as f:
+                content = f.read()
+    except:
+        pass    
 
     if (cfg.get('dls','enabled') == "1"):
         if((artist not in tempArtist and title not in tempTitle) or (artist == "" or title == "")):
@@ -325,43 +333,47 @@ def generate(cfg=None, lastArtist="", lastTitle="", mode="standalone", artistFro
     if(len(str(title)) > 35):
         title = str(title)[0:35] + "..."
 
-    if(mode != "dabctl"):
-        if(artist == lastArtist and title == lastTitle):
-            str_tools.printMsg("ATC ", "SLS/DLS already generated, passing...")
-            return artist, title
-
-    str_tools.printMsg ("ATC ", "Generating Slide...")
-
-    # content = content.replace("$artist", str(artist.encode("utf-8").decode('unicode_escape')))
-    # content = content.replace("$title", str(title.encode("utf-8").decode('unicode_escape')))
-    content = content.replace("$artist", str_tools.formString(str(artist), int(artistForm)).strip())
-    content = content.replace("$title", str_tools.formString(str(title), int(titleForm)).strip())
-    content = content.replace("$color1", color1)
-    content = content.replace("$color2", color2)
-    content = content.replace("$backurl", backUrl)
-    content = content.replace("$logo", logo)
     try:
-        # respCover = urlopen(cover).getcode()
-        req = Request(cover, headers={'User-Agent': 'Mozilla/5.0'})
-        readCover = urlopen(req).read()
-    except:
-        cover = cfg.get('source','defaultCover')
-    content = content.replace("$cover", cover)
+        if(cfg.get('slides', 'music') == "1"):
+            if(mode != "dabctl"):
+                if(artist == lastArtist and title == lastTitle):
+                    str_tools.printMsg("ATC ", "SLS/DLS already generated, passing...")
+                    return artist, title
 
-    try: 
-        if(mode == "dabctl"):
-            img_file.generateImg(content, "/tmp/PadTool-" + str(os.getpid()) + "/music")
-            str_tools.printMsg ("ATC ", "Slide generated at : '" + "/tmp/PadTool-" + str(os.getpid()) + "/music.jpg' and will be copied to '" + outFolder + "/music.jpg'")
-        else:
-            img_file.generateImg(content, outFolder + "/music")
-            str_tools.printMsg ("ATC ", "Slide generated at : '" + outFolder + "/music.jpg'")
-    except Exception as ex:
-        str_tools.printMsg ("ATC ", "Slide generation error : " + str(ex))
-    
-    # Create file REQUEST_SLIDES_DIR_REREAD
-    if(mode != "dabctl" or mode != "dabctl-ext"):
-        f = open(outFolder + '/REQUEST_SLIDES_DIR_REREAD', 'w' )
-        f.write("")
-        f.close()  
+            str_tools.printMsg ("ATC ", "Generating Slide...")
+
+            # content = content.replace("$artist", str(artist.encode("utf-8").decode('unicode_escape')))
+            # content = content.replace("$title", str(title.encode("utf-8").decode('unicode_escape')))
+            content = content.replace("$artist", str_tools.formString(str(artist), int(artistForm)).strip())
+            content = content.replace("$title", str_tools.formString(str(title), int(titleForm)).strip())
+            content = content.replace("$color1", color1)
+            content = content.replace("$color2", color2)
+            content = content.replace("$backurl", backUrl)
+            content = content.replace("$logo", logo)
+            try:
+                # respCover = urlopen(cover).getcode()
+                req = Request(cover, headers={'User-Agent': 'Mozilla/5.0'})
+                readCover = urlopen(req).read()
+            except:
+                cover = cfg.get('source','defaultCover')
+            content = content.replace("$cover", cover)
+
+            try: 
+                if(mode == "dabctl"):
+                    img_file.generateImg(content, "/tmp/PadTool-" + str(os.getpid()) + "/music")
+                    str_tools.printMsg ("ATC ", "Slide generated at : '" + "/tmp/PadTool-" + str(os.getpid()) + "/music.jpg' and will be copied to '" + outFolder + "/music.jpg'")
+                else:
+                    img_file.generateImg(content, outFolder + "/music")
+                    str_tools.printMsg ("ATC ", "Slide generated at : '" + outFolder + "/music.jpg'")
+            except Exception as ex:
+                str_tools.printMsg ("ATC ", "Slide generation error : " + str(ex))
+            
+            # Create file REQUEST_SLIDES_DIR_REREAD
+            if(mode != "dabctl" or mode != "dabctl-ext"):
+                f = open(outFolder + '/REQUEST_SLIDES_DIR_REREAD', 'w' )
+                f.write("")
+                f.close()  
+    except:
+        pass
 
     return artist, title

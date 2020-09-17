@@ -281,10 +281,11 @@ class CustomHTTPServer(http.server.HTTPServer):
 
 def launchWebServer(cfg, port, user, pwd):
     host = '0.0.0.0'
-    server = CustomHTTPServer(('0.0.0.0', int(port)))
-    server.set_auth(user, pwd)
-    server.setCfg(cfg)
-    server.serve_forever()
+    while True:
+        server = CustomHTTPServer(('0.0.0.0', int(port)))
+        server.set_auth(user, pwd)
+        server.setCfg(cfg)
+        server.serve_forever()
 
 class Server(Thread):
     def __init__(self, cfg, port, user, pwd):

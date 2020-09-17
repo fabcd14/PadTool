@@ -37,6 +37,22 @@ def generate(cfg):
         str_tools.printMsg("Logo", "Mandatory parameter is missing : " + str(error))
         sys.exit(2)
 
+    # Checking connection failures
+    while True:
+        try: 
+            req = Request(cfg.get('source', 'url'), headers={'User-Agent': 'Mozilla/5.0'})
+            file = urlopen(logo).read()
+            cptFails = 0
+            break
+        except Exception as ex: 
+            cptFails = cptFails + 1
+            if(cptFails < 5):
+                str_tools.printMsg("Logo", "[" + str(cptFails) + "/5] Failed to open source file ("+str(ex)+"). Retrying in 10secs...")
+                time.sleep(10)
+            else:
+                str_tools.printMsg("Logo", "[" + str(cptFails) + "/5] Failed 5 times to open source file. PadTool will exits...")
+                sys.exit(2)
+
     str_tools.printMsg ("Logo", "Generating Slide...")
 
     # Data masking replacement with correct values

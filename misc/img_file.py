@@ -53,10 +53,10 @@ def driverInit():
         driver = webdriver.Chrome(options=options)
         driver.set_window_size(320, 240)
         str_tools.printMsg ("Wdv ", "WebDriver Initialized")
+        return driver
     except Exception as error:
         str_tools.printMsg ("Wdv ", "WebDriver initialization error : " + str(error))
         sys.exit(2)
-    return driver
 
 def generateImg(content, filename):
     driver = driverInit()

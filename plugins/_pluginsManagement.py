@@ -92,7 +92,7 @@ def initPlugins(pathCfg, cfg, mode, timer):
 
     while True:
         # Generating artist/title/cover slide (with DLS+ if selected) if mode is not "server"
-        if(cfg.get('slides', 'music') == "1" and mode != "server"):
+        if(mode != "server"):
             artist, title = templateATC.generate(cfg, artist, title, mode)
 
         # Timer reset at 0 when we get to an a new hour / Trigger 1 hour

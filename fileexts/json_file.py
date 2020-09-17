@@ -62,6 +62,13 @@ def searchForJson(expr, d, parent=[], level=0):
                         if (found == 1):
                             return parent, level, found
                         parent.pop(len(parent)-1)
+                    elif(isinstance(v, list)):
+                        parent.append(k)
+                        level = level+1
+                        parent, level, found = searchForJson(expr, v, parent, level)
+                        if (found == 1):
+                            return parent, level, found
+                        parent.pop(len(parent)-1)
                     else:
                         if (v == expr):
                             if(d.count != 1):

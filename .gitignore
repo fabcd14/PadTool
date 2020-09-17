@@ -179,3 +179,8 @@ config-server.ini
 config-ouifmcr.ini
 config-kif.ini
 c21_none.json
+examples-template/template-lebonmix.json
+examples-template/template-hotmix.json
+config-hotmix.ini
+config-lbm.ini
+config (conflicted copy 2020-09-06 011251).ini
