@@ -1,6 +1,13 @@
 PadTool
 =======
-[![Build Status](https://travis-ci.com/fabcd14/PadTool.svg?branch=master)](https://travis-ci.com/fabcd14/PadTool)   
+[![Build Status](https://travis-ci.com/fabcd14/PadTool.svg?branch=master)](https://travis-ci.com/fabcd14/PadTool)
+[![Maintenance](https://img.shields.io/badge/Maintained-yes-green.svg)](https://github.com/fabcd14/PadTool/graphs/commit-activity)
+[![GitHub version](https://badge.fury.io/gh/fabcd14%2FPadTool.svg)](https://github.com/fabcd14/PadTool)
+[![Lines of Code](https://tokei.rs/b1/github/fabcd14/PadTool)](https://github.com/fabcd14/PadTool)
+[![made-with-python](https://img.shields.io/badge/Made%20with-Python-1f425f.svg)](https://www.python.org/)
+[![Python versioning](https://img.shields.io/badge/python-%3E=3.5-blue.svg)](https://github.com/fabcd14/PadTool)
+[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](http://perso.crans.org/besson/LICENSE.html)
+
 ![Screenshot of a logo slide](https://raw.githubusercontent.com/fabcd14/PadTool/master/img/padtool_logo.png)   
    
 PadTool is a MOT SLS and DLS generator for PAD encoders such as ODR-PadEnc.
@@ -21,7 +28,8 @@ Features of PadTool:
 - Easy personnalized DLS text with predefined tags
 - Possible generation of a logo station slide
 - Possible generation of ATC slide (Artist, Title & Cover)
-- Automatic seeking of the cover thanks to CoverPy
+- Compatible with other plugins (see [www.rplusd.io](https://www.rplusd.io/PadTool).)
+- Automatic cover art seeking thanks to CoverPy and Sacad (iTunes, Amazon, last.fm and many more...)
 - Colors and themes fully personnalisable via CSS and HTML templates
 
 Output example slides :  
