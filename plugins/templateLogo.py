@@ -26,13 +26,25 @@ import platform
 from misc import img_file
 from misc import str_tools
 
+# Define default compression ratio for Logo slides
+logoCompressionRatio = 85
+
 def generate(cfg):
     # Parameters to generate SLS from the config file
+    compLogo = -1
     try:
         logo = cfg.get('general', 'logoUrl')
         colorl = cfg.get('general', 'colorl')
         mode = cfg.get('general', 'mode')
         outFolder = cfg.get('general', 'outFolder')
+        try:
+            compLogo = cfg.get('quality', 'logo')
+            if(int(compLogo) < 0 or int(compLogo) > 100):
+                str_tools.printMsg("Logo", "The quality ratio setting is not correct. Provided " + str(compLogo) + "%. The value must be between 0-100%")
+                compLogo = logoCompressionRatio    
+        except:
+            str_tools.printMsg("Logo", "No quality ratio setting defined for Logo slides. Using default value: " + str(logoCompressionRatio) +"%")
+            compLogo = logoCompressionRatio
     except configparser.NoOptionError as error:
         str_tools.printMsg("Logo", "Mandatory parameter is missing : " + str(error))
         sys.exit(2)
@@ -76,10 +88,10 @@ def generate(cfg):
 
     try: 
         if(mode == "dabctl"):
-            img_file.generateImg(content, "/tmp/PadTool-" + str(os.getpid()) + "/logo")
-            str_tools.printMsg ("Logo", "Slide generated at : '" + "/tmp/PadTool-" + str(os.getpid()) + "/logo.jpg' and will be copied to '" + outFolder + "/logo.jpg'")
+            img_file.generateImg(content, "/tmp/PadTool-" + str(os.getpid()) + "/logo", int(compLogo))
+            str_tools.printMsg ("Logo", "Slide generated at : '" + "/tmp/PadTool-" + str(os.getpid()) + "/logo.jpg' and will be copied to '" + outFolder + "/logo.jpg' (ratio: " + str(compAtc)+"%)")
         else:
-            img_file.generateImg(content, outFolder + "/logo")
-            str_tools.printMsg ("Logo", "Slide generated at : '" + outFolder + "/logo.jpg'")
+            img_file.generateImg(content, outFolder + "/logo", int(compLogo))
+            str_tools.printMsg ("Logo", "Slide generated at : '" + outFolder + "/logo.jpg' (ratio: " + str(compLogo)+"%)")
     except Exception as ex:
         str_tools.printMsg ("Logo", "Slide generation error : " + str(ex))

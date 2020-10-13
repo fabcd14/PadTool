@@ -30,6 +30,9 @@ import html
 import time
 import sys
 import coverpy
+import sacad
+import base64
+import shutil
 
 from fileexts import json_file
 from fileexts import xml_file
@@ -37,11 +40,15 @@ from fileexts import txt_file
 from misc import img_file
 from misc import str_tools
 
+# Define default compression ratio for ATC slides
+atcCompressionRatio = 60
+
 def generate(cfg=None, lastArtist="", lastTitle="", mode="standalone", artistFromServer="", titleFromServer="", coverFromServer=""):
     # Avoid SSL errors
     ssl._create_default_https_context = ssl._create_unverified_context
 
     # Parameters to generate SLS from the config file
+    compAtc = -1
     try: 
         logo = cfg.get('general', 'logoUrl')
         color1 = cfg.get('general', 'color1')
@@ -51,8 +58,16 @@ def generate(cfg=None, lastArtist="", lastTitle="", mode="standalone", artistFro
         radioName = cfg.get('general', 'radioName')
         slogan = cfg.get('general', 'slogan')
         outFolder = cfg.get('general', 'outFolder')
+        try:
+            compAtc = cfg.get('quality', 'atc')
+            if(int(compAtc) < 0 or int(compAtc) > 100):
+                str_tools.printMsg("ATC ", "The quality ratio setting is not correct. Provided " + str(compAtc) + "%. The value must be between 0-100%")
+                compAtc = atcCompressionRatio    
+        except:
+            str_tools.printMsg("ATC ", "No quality ratio setting defined for ATC slides. Using default value: " + str(atcCompressionRatio) +"%")
+            compAtc = atcCompressionRatio
     except configparser.NoOptionError as error:
-        str_tools.printMsg("ATC", "Mandatory parameter is missing : " + str(error))
+        str_tools.printMsg("ATC ", "Mandatory parameter is missing : " + str(error))
         sys.exit(2)
 
     # Local Vars
@@ -180,7 +195,7 @@ def generate(cfg=None, lastArtist="", lastTitle="", mode="standalone", artistFro
 
     try:
         if(cfg.get('slides', 'music') == "1"):
-            # Find the cover on CoverPy
+            # Find the cover on CoverPy or Sacad
             coverPyEnabled = "0"
             coverPyFound = False
 
@@ -188,19 +203,39 @@ def generate(cfg=None, lastArtist="", lastTitle="", mode="standalone", artistFro
                 coverPyEnabled = cfg.get('source', 'researchCover')
             except:
                 pass
-
+            
+            albumFromCpy = ""
+            # Search a cover via CoverPy if enabled
             if not cover and coverPyEnabled == "1":
                 cpy = coverpy.CoverPy()
                 try:
                     str_tools.printMsg ("ATC ", "No cover URL provided, using CoverPy to find one cover...")
                     result = cpy.get_cover(artist + " - " + title, 1)
                     cover = result.artwork(300)
+                    albumFromCpy = result.album
                     coverPyFound = True
                     str_tools.printMsg ("ATC ", "Cover found using CoverPy : " + cover)
                 except coverpy.exceptions.NoResultsException:
                     str_tools.printMsg ("ATC ", "No cover found using CoverPy")
                 except:
                     str_tools.printMsg ("ATC ", "Error with CoverPy")
+
+            # If no cover found via CoverPy, then call to Sacad to find a cover
+            if not cover and coverPyEnabled == "1":
+                try:
+                    str_tools.printMsg ("ATC ", "Using Sacad to find a cover")
+                    if(albumFromCpy == ""):
+                        albumFromCpy = title
+                    os.system("sacad \"" + artist + "\" \"" + albumFromCpy + "\" " + " 300 PadTool-Art-" + str(os.getpid()) + ".jpg -a fr")
+                    with open("PadTool-Art-" + str(os.getpid()) + ".jpg", "rb") as image_file:
+                        cover = "data:image/jpg;base64," + str(base64.b64encode(image_file.read()).decode())
+                        if (os.path.isdir("PadTool-Art-" + str(os.getpid()) + ".jpg", "rb")):
+                            shutil.rmtree("PadTool-Art-" + str(os.getpid()) + ".jpg", "rb")
+                        coverPyFound = True
+                    str_tools.printMsg("ATC ", "Cover found via Sacad")
+                    time.sleep(1)
+                except:
+                    str_tools.printMsg ("ATC ", "Error with Sacad or cover not found")
 
             # Put default cover when no cover image provided (eg. logo of the radio station)
             if (not cover and coverPyFound == False) or filterFound == True:
@@ -360,11 +395,11 @@ def generate(cfg=None, lastArtist="", lastTitle="", mode="standalone", artistFro
 
             try: 
                 if(mode == "dabctl"):
-                    img_file.generateImg(content, "/tmp/PadTool-" + str(os.getpid()) + "/music")
+                    img_file.generateImg(content, "/tmp/PadTool-" + str(os.getpid()) + "/music", int(compAtc))
                     str_tools.printMsg ("ATC ", "Slide generated at : '" + "/tmp/PadTool-" + str(os.getpid()) + "/music.jpg' and will be copied to '" + outFolder + "/music.jpg'")
                 else:
-                    img_file.generateImg(content, outFolder + "/music")
-                    str_tools.printMsg ("ATC ", "Slide generated at : '" + outFolder + "/music.jpg'")
+                    img_file.generateImg(content, outFolder + "/music", int(compAtc))
+                    str_tools.printMsg ("ATC ", "Slide generated at : '" + outFolder + "/music.jpg' (ratio: " + str(compAtc)+"%)")
             except Exception as ex:
                 str_tools.printMsg ("ATC ", "Slide generation error : " + str(ex))
             

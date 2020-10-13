@@ -58,7 +58,7 @@ def driverInit():
         str_tools.printMsg ("Wdv ", "WebDriver initialization error : " + str(error))
         sys.exit(2)
 
-def generateImg(content, filename):
+def generateImg(content, filename, quality=50):
     driver = driverInit()
     driver.get("about:blank")
     driver.delete_all_cookies()
@@ -74,18 +74,16 @@ def generateImg(content, filename):
     except TimeoutException:
         str_tools.printMsg ("Wdv ", "Timeout on slide generation")
 
+    time.sleep(1)
     png = driver.get_screenshot_as_png()
 
     box = (0, 0, 320, 240)
     im = Image.open(BytesIO(png))
     rgb_im = im.convert('RGB')
     region = rgb_im.crop(box)
-
-    quality = 50
-    if("logo" in filename):
-        quality = 85
-    elif("music" in filename):
-        quality = 60
     
-    region.save(filename + ".jpg", 'JPEG', optimize=True, quality=quality)
+    try:
+        region.save(filename + ".jpg", 'JPEG', optimize=True, quality=quality)
+    except Exception as ex:
+        str_tools.printMsg ("Wdv ", "WebDriver error : " + str(ex))
     driver.quit()

@@ -1,12 +1,34 @@
 This file contains information about the changes done to PadTool in this repository
 
+2020-10-14: Fabien Cuny
+	(v1.0.1):
+		- Added Sacad library in addition to CoverPy to grab covers. PadTool is now able 
+		to retrieve artwork from :
+			* iTunes (via CoverPy)
+			* Amazon CD (via Sacad)
+			* Amazon digital music (via Sacad)
+			* Deezer (via Sacad)
+			* Google Images (via Sacad)
+			* Last.fm (via Sacad)
+		iTunes source is selected first and if no cover is available, PadTool sends the
+		request to Sacad. Sacad decides the most pertinent source then based on its own
+		criterias. See INSTALL for install Sacad package via pip3.
+		- Wait time added in slide generation to fully ensure that all the components of
+		the slide are fully loaded.
+		- Added flexible quality ratio setting for Logo and ATC (Artist, Title, Cover
+		slides). You can define them as this in the config file by creating a [quality]
+		item (here for eg. logo at 70% and ATC slide at 90%):
+			[quality]
+			logo = 70
+			atc = 90
+
 2020-09-17: Fabien Cuny
 	(v1.0.0):
 		- Improved Logo slide generation : Better error handling when gathering the logo
 		- Improved mode 3 of artistForm and titleForm options for DLS(+)
 		- Bugfix : the DLS(+) could be now generated independently from generating ATC 
 		(artist/title/cover) slide
-		- Webserver : Crashes randomly, added a loop to rforce re-execution when it crashes.
+		- Webserver : Crashes randomly, added a loop to force re-execution when it crashes.
 
 2020-07-30: Fabien Cuny
 	(v0.9.9):
