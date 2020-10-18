@@ -6,6 +6,8 @@ This file contains information about the changes done to PadTool in this reposit
 		- Removed Sacad: a lot of issues were reported and were affecting availability
 		of covers.
 		It is now replaced with iTunes (via CoverPy) first and Discogs in backup.
+		For this, please install discogs_client via pip3 (pip3 install discogs_client).
+		See INSTALL for more details.
 
 2020-10-14: Fabien Cuny
 	(v1.0.1):
