@@ -30,9 +30,7 @@ import html
 import time
 import sys
 import coverpy
-import sacad
-import base64
-import shutil
+import discogs_client
 
 from fileexts import json_file
 from fileexts import xml_file
@@ -195,50 +193,53 @@ def generate(cfg=None, lastArtist="", lastTitle="", mode="standalone", artistFro
 
     try:
         if(cfg.get('slides', 'music') == "1"):
-            # Find the cover on CoverPy or Sacad
-            coverPyEnabled = "0"
-            coverPyFound = False
+            # Find the cover on CoverPy
+            researchCover = "0"
+            coverFound = False
 
             try:
-                coverPyEnabled = cfg.get('source', 'researchCover')
+                researchCover = cfg.get('source', 'researchCover')
             except:
                 pass
             
-            albumFromCpy = ""
-            # Search a cover via CoverPy if enabled
-            if not cover and coverPyEnabled == "1":
+            album = ""
+
+            # Search a cover via CoverPy if enabled, and if cover is not found via Discogs
+            if not cover and researchCover == "1":
                 cpy = coverpy.CoverPy()
                 try:
                     str_tools.printMsg ("ATC ", "No cover URL provided, using CoverPy to find one cover...")
                     result = cpy.get_cover(artist + " - " + title, 1)
                     cover = result.artwork(300)
-                    albumFromCpy = result.album
-                    coverPyFound = True
-                    str_tools.printMsg ("ATC ", "Cover found using CoverPy : " + cover)
+                    album = result.album
+                    coverFound = True
+                    str_tools.printMsg ("ATC ", "Album name found via CoverPy: " + album)
+                    str_tools.printMsg ("ATC ", "Cover found using CoverPy: " + cover)
                 except coverpy.exceptions.NoResultsException:
                     str_tools.printMsg ("ATC ", "No cover found using CoverPy")
                 except:
                     str_tools.printMsg ("ATC ", "Error with CoverPy")
 
-            # If no cover found via CoverPy, then call to Sacad to find a cover
-            if not cover and coverPyEnabled == "1":
+            # Search a cover via Discogs if enabled
+            if not cover and researchCover == "1" and coverFound == False:
                 try:
-                    str_tools.printMsg ("ATC ", "Using Sacad to find a cover")
-                    if(albumFromCpy == ""):
-                        albumFromCpy = title
-                    os.system("sacad \"" + artist + "\" \"" + albumFromCpy + "\" " + " 300 PadTool-Art-" + str(os.getpid()) + ".jpg -a fr")
-                    with open("PadTool-Art-" + str(os.getpid()) + ".jpg", "rb") as image_file:
-                        cover = "data:image/jpg;base64," + str(base64.b64encode(image_file.read()).decode())
-                        if (os.path.isdir("PadTool-Art-" + str(os.getpid()) + ".jpg", "rb")):
-                            shutil.rmtree("PadTool-Art-" + str(os.getpid()) + ".jpg", "rb")
-                        coverPyFound = True
-                    str_tools.printMsg("ATC ", "Cover found via Sacad")
-                    time.sleep(1)
+                    d = discogs_client.Client('PadTool/Discogs_Client_v0.1', user_token="xuvwVXGDSbJmvpxvfYNsRbWsHJUncanygadrZnqI")
+                    results = d.search(artist + " - " + title, type='release')
+                    if (results.pages > 0):
+                            str_tools.printMsg ("ATC ", "No cover URL provided, using Discogs to find one cover...")
+                            release = d.release(results[0].id).master
+                            album = release.title
+                            cover = release.images[0]['uri']
+                            coverFound = True
+                            str_tools.printMsg ("ATC ", "Album name found via Discogs: " + album)
+                            str_tools.printMsg ("ATC ", "Cover found using Discogs: " + cover)
                 except:
-                    str_tools.printMsg ("ATC ", "Error with Sacad or cover not found")
+                    str_tools.printMsg ("ATC ", "Error or cover not found using Discogs API, check your Discogs UserToken")
+            
+
 
             # Put default cover when no cover image provided (eg. logo of the radio station)
-            if (not cover and coverPyFound == False) or filterFound == True:
+            if (not cover and coverFound == False) or filterFound == True:
                 str_tools.printMsg ("ATC ", "Putting default cover as no URL has been provided or if a filter has been found")
                 try:
                     cover = cfg.get('source','defaultCover')

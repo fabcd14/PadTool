@@ -29,7 +29,7 @@ Features of PadTool:
 - Possible generation of a logo station slide
 - Possible generation of ATC slide (Artist, Title & Cover)
 - Compatible with other plugins (see [www.rplusd.io](https://www.rplusd.io/PadTool).)
-- Automatic cover art seeking thanks to CoverPy and Sacad (iTunes, Amazon, last.fm and many more...)
+- Automatic cover art seeking thanks to Discogs API (via DiscogsClient), and iTunes API (via CoverPy).
 - Colors and themes fully personnalisable via CSS and HTML templates
 
 Output example slides :  

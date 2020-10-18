@@ -1,5 +1,12 @@
 This file contains information about the changes done to PadTool in this repository
 
+2020-10-18: Fabien Cuny
+	(v1.0.2):
+		- Logo generation bugfix: PadTool crashed if a logo image were not reachable.
+		- Removed Sacad: a lot of issues were reported and were affecting availability
+		of covers.
+		It is now replaced with iTunes (via CoverPy) first and Discogs in backup.
+
 2020-10-14: Fabien Cuny
 	(v1.0.1):
 		- Added Sacad library in addition to CoverPy to grab covers. PadTool is now able 

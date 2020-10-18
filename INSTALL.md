@@ -10,7 +10,6 @@ Required dependencies
 * Selenium lib
 * ImgKit lib
 * CoverPy lib
-* Sacad lib
 
 Installation
 ============
@@ -26,7 +25,6 @@ For Ubuntu and other Linux distributions (usage of Chromium which is Open Source
     $ pip3 install imgkit
     $ pip3 install pillow
     $ pip3 install coverpy
-    $ pip3 install sacad
    
 Tip : On Debian distributions, packages for chromium-brower and chromium-chromedriver are named respectively `chromium` and `chromium-driver`
 
@@ -66,7 +64,6 @@ In this case, install the pip3 packages as `sudo` :
     $ sudo pip3 install imgkit
     $ sudo pip3 install pillow
     $ sudo pip3 install coverpy
-    $ sudo pip3 install sacad
 
 Here is an example of a supervisor config file :
 

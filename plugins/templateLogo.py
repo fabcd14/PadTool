@@ -29,6 +29,9 @@ from misc import str_tools
 # Define default compression ratio for Logo slides
 logoCompressionRatio = 85
 
+# Counter of failures from HTTP requests
+cptFails = 0
+
 def generate(cfg):
     # Parameters to generate SLS from the config file
     compLogo = -1

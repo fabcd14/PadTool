@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with PadTool.  If not, see <http://www.gnu.org/licenses/>.
 
-version = "v1.0.1"
+version = "v1.0.2"
 
 # Import system libraries
 
