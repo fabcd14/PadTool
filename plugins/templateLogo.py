@@ -22,15 +22,14 @@ import io
 import os
 import imgkit
 import platform
+import time
+import sys
 
 from misc import img_file
 from misc import str_tools
 
 # Define default compression ratio for Logo slides
 logoCompressionRatio = 85
-
-# Counter of failures from HTTP requests
-cptFails = 0
 
 def generate(cfg):
     # Parameters to generate SLS from the config file
@@ -53,10 +52,14 @@ def generate(cfg):
         sys.exit(2)
 
     # Checking connection failures
+
+    # Counter of failures from HTTP requests
+    cptFails = 0
+
     while True:
         try: 
-            req = Request(cfg.get('source', 'url'), headers={'User-Agent': 'Mozilla/5.0'})
-            file = urlopen(logo).read()
+            req = Request(logo, headers={'User-Agent': 'Mozilla/5.0'})
+            file = urlopen(req).read()
             cptFails = 0
             break
         except Exception as ex: 

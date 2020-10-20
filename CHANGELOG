@@ -1,5 +1,10 @@
 This file contains information about the changes done to PadTool in this repository
 
+2020-10-20: Fabien Cuny
+	(v1.0.3):
+		- Logo generation bugfix (continuation): missed certain imports during the call
+		and mismatches corrected.
+
 2020-10-18: Fabien Cuny
 	(v1.0.2):
 		- Logo generation bugfix: PadTool crashed if a logo image were not reachable.
@@ -8,6 +13,7 @@ This file contains information about the changes done to PadTool in this reposit
 		It is now replaced with iTunes (via CoverPy) first and Discogs in backup.
 		For this, please install discogs_client via pip3 (pip3 install discogs_client).
 		See INSTALL for more details.
+		There is a reflection in progress to reintegrate Sacad in the next releases.
 
 2020-10-14: Fabien Cuny
 	(v1.0.1):

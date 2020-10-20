@@ -10,6 +10,7 @@ Required dependencies
 * Selenium lib
 * ImgKit lib
 * CoverPy lib
+* Discogs Client
 
 Installation
 ============
